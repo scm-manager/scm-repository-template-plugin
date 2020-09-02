@@ -24,6 +24,7 @@
 
 package com.cloudogu.scm.repositorytemplate;
 
+import de.otto.edison.hal.HalRepresentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -39,7 +40,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
-import java.util.List;
 
 @OpenAPIDefinition(tags = {
   @Tag(name = "Repository Templates", description = "Repository template related endpoints")
@@ -50,14 +50,16 @@ public class RepositoryTemplateResource {
   private static final String MEDIATYPE = VndMediaType.PREFIX + "repository-template" + VndMediaType.SUFFIX;
 
   private final RepositoryTemplateCollector collector;
+  private final RepositoryTemplateCollectionMapper collectionMapper;
 
   @Inject
-  RepositoryTemplateResource(RepositoryTemplateCollector collector) {
+  RepositoryTemplateResource(RepositoryTemplateCollector collector, RepositoryTemplateCollectionMapper collectionMapper) {
     this.collector = collector;
+    this.collectionMapper = collectionMapper;
   }
 
   @GET
-  @Path("/")
+  @Path("")
   @Produces(MEDIATYPE)
   @Operation(
     summary = "Get repository templates",
@@ -70,7 +72,7 @@ public class RepositoryTemplateResource {
     description = "success",
     content = @Content(
       mediaType = MEDIATYPE,
-      schema = @Schema(implementation = RepositoryTemplatesDto.class)
+      schema = @Schema(implementation = HalRepresentation.class)
     )
   )
   @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
@@ -85,7 +87,7 @@ public class RepositoryTemplateResource {
   )
   public Response getRepositoryTemplates() {
     Collection<RepositoryTemplate> repositoryTemplates = collector.collect();
-    //TODO use mapper
-    return Response.ok(repositoryTemplates).build();
+    HalRepresentation repoTemplateCollectionDto = collectionMapper.map(repositoryTemplates);
+    return Response.ok(repoTemplateCollectionDto).build();
   }
 }

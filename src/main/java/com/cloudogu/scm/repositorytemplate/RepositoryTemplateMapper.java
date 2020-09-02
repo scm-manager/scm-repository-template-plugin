@@ -23,16 +23,10 @@
  */
 package com.cloudogu.scm.repositorytemplate;
 
-import de.otto.edison.hal.HalRepresentation;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.mapstruct.Mapper;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class RepositoryTemplateDto extends HalRepresentation {
-  private String namespaceAndName;
+@Mapper
+public abstract class RepositoryTemplateMapper {
+
+  public abstract RepositoryTemplateDto map(RepositoryTemplate repositoryTemplate);
 }

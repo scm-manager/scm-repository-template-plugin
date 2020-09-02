@@ -23,16 +23,27 @@
  */
 package com.cloudogu.scm.repositorytemplate;
 
-import de.otto.edison.hal.HalRepresentation;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import sonia.scm.repository.Repository;
+import sonia.scm.repository.RepositoryTestData;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class RepositoryTemplateDto extends HalRepresentation {
-  private String namespaceAndName;
+import static org.assertj.core.api.Assertions.assertThat;
+
+@ExtendWith(MockitoExtension.class)
+class RepositoryTemplateMapperTest {
+
+  private final RepositoryTemplateMapper mapper = new RepositoryTemplateMapperImpl();
+
+  @Test
+  void shouldMapRepoTemplateToDto() {
+    Repository repository = RepositoryTestData.create42Puzzle();
+    RepositoryTemplate repositoryTemplate = new RepositoryTemplate();
+    repositoryTemplate.setNamespaceAndName(repository.getNamespaceAndName().toString());
+
+    RepositoryTemplateDto dto = mapper.map(repositoryTemplate);
+
+    assertThat(dto.getNamespaceAndName()).isEqualTo(repository.getNamespaceAndName().toString());
+  }
 }
