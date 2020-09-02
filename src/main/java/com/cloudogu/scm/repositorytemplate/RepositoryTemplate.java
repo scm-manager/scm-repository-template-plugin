@@ -1,5 +1,6 @@
 package com.cloudogu.scm.repositorytemplate;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,5 +14,6 @@ import java.util.List;
 public class RepositoryTemplate {
   private NamespaceAndName namespaceAndName;
   private String engine;
-  private List<String> templatedFiles;
+  @JsonProperty("files")
+  private List<RepositoryTemplateFile> templatedFiles;
 }

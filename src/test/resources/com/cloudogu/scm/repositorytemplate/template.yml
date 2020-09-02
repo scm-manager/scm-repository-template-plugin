@@ -1,0 +1,8 @@
+engine: mustache
+files:
+  - name: README.md
+    filtered: true
+  - name: Jenkinsfile
+    filtered: false
+  - name: src/*
+    filtered: false
