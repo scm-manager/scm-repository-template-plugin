@@ -23,17 +23,15 @@
  */
 package com.cloudogu.scm.repositorytemplate;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.google.inject.AbstractModule;
+import org.mapstruct.factory.Mappers;
+import sonia.scm.plugin.Extension;
 
-import java.util.List;
+@Extension
+public class MapperModule extends AbstractModule {
 
-@Getter
-@Setter
-@NoArgsConstructor
-public class RepositoryTemplate {
-  private String namespaceAndName;
-  private String engine;
-  private List<RepositoryTemplateFile> files;
+  @Override
+  protected void configure() {
+    bind(RepositoryTemplateMapper.class).to(Mappers.getMapper(RepositoryTemplateMapper.class).getClass());
+  }
 }

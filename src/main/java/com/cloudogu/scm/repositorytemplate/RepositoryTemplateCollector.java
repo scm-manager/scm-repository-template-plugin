@@ -23,11 +23,11 @@
  */
 package com.cloudogu.scm.repositorytemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.legman.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 import sonia.scm.cache.Cache;
 import sonia.scm.cache.CacheManager;
 import sonia.scm.repository.Changeset;
@@ -61,8 +61,8 @@ public class RepositoryTemplateCollector {
   private final RepositoryManager repositoryManager;
   private final Cache<String, Collection<RepositoryTemplate>> cache;
 
-
-  private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+  // SnakeYaml cannot find the classes without the right classloader
+  private final Yaml yaml = new Yaml(new CustomClassLoaderConstructor(RepositoryTemplateCollector.class.getClassLoader()));
 
   @Inject
   public RepositoryTemplateCollector(AdministrationContext administrationContext, RepositoryServiceFactory serviceFactory, RepositoryManager repositoryManager, CacheManager cacheManager) {
@@ -91,10 +91,8 @@ public class RepositoryTemplateCollector {
 
   @Subscribe
   public void onEvent(PostReceiveRepositoryHookEvent event) {
-    boolean clearCache;
     try (RepositoryService repositoryService = serviceFactory.create(event.getRepository())) {
-      clearCache = wasTemplateFileEffected(event, repositoryService);
-      if (clearCache) {
+      if (wasTemplateFileEffected(event, repositoryService)) {
         cache.clear();
       }
     } catch (IOException e) {
@@ -137,10 +135,11 @@ public class RepositoryTemplateCollector {
   }
 
   private RepositoryTemplate mapRepositoryTemplateFromFile(RepositoryService repositoryService, String existingTemplateFile) throws IOException {
-    InputStream templateYml = repositoryService.getCatCommand().getStream(existingTemplateFile);
-    RepositoryTemplate repositoryTemplate = mapper.readValue(templateYml, RepositoryTemplate.class);
-    repositoryTemplate.setNamespaceAndName(repositoryService.getRepository().getNamespaceAndName().toString());
-    return repositoryTemplate;
+    try (InputStream templateYml = repositoryService.getCatCommand().getStream(existingTemplateFile)) {
+      RepositoryTemplate repositoryTemplate = yaml.loadAs(templateYml, RepositoryTemplate.class);
+      repositoryTemplate.setNamespaceAndName(repositoryService.getRepository().getNamespaceAndName().toString());
+      return repositoryTemplate;
+    }
   }
 
   private Optional<String> templateFileExists(RepositoryService repositoryService) throws IOException {

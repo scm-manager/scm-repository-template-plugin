@@ -47,7 +47,7 @@ import java.util.Collection;
 @Path("v2/repos/templates")
 public class RepositoryTemplateResource {
 
-  private static final String MEDIA_TYPE = VndMediaType.PREFIX + "repository-template" + VndMediaType.SUFFIX;
+  private static final String MEDIA_TYPE = VndMediaType.PREFIX + "repository-templates" + VndMediaType.SUFFIX;
 
   private final RepositoryTemplateCollector collector;
   private final RepositoryTemplateCollectionMapper collectionMapper;
@@ -76,7 +76,6 @@ public class RepositoryTemplateResource {
     )
   )
   @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
-  @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"readRepository\" privilege")
   @ApiResponse(
     responseCode = "500",
     description = "internal server error",

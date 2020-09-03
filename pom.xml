@@ -49,11 +49,25 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.fasterxml.jackson.dataformat</groupId>
-      <artifactId>jackson-dataformat-yaml</artifactId>
-      <version>2.10.3</version>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>1.26</version>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>io.openapitools.swagger</groupId>
+        <artifactId>swagger-maven-plugin</artifactId>
+        <configuration>
+          <resourcePackages>
+            <resourcePackage>com.cloudogu.scm.repositorytemplate</resourcePackage>
+          </resourcePackages>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
   <repositories>
 
