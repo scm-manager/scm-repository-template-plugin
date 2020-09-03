@@ -42,12 +42,12 @@ import javax.ws.rs.core.Response;
 import java.util.Collection;
 
 @OpenAPIDefinition(tags = {
-  @Tag(name = "Repository Templates", description = "Repository template related endpoints")
+  @Tag(name = "Repository Templates", description = "Repository template plugin related endpoints")
 })
 @Path("v2/repos/templates")
 public class RepositoryTemplateResource {
 
-  private static final String MEDIATYPE = VndMediaType.PREFIX + "repository-template" + VndMediaType.SUFFIX;
+  private static final String MEDIA_TYPE = VndMediaType.PREFIX + "repository-template" + VndMediaType.SUFFIX;
 
   private final RepositoryTemplateCollector collector;
   private final RepositoryTemplateCollectionMapper collectionMapper;
@@ -60,7 +60,7 @@ public class RepositoryTemplateResource {
 
   @GET
   @Path("")
-  @Produces(MEDIATYPE)
+  @Produces(MEDIA_TYPE)
   @Operation(
     summary = "Get repository templates",
     description = "Returns a collection of repository templates.",
@@ -71,7 +71,7 @@ public class RepositoryTemplateResource {
     responseCode = "200",
     description = "success",
     content = @Content(
-      mediaType = MEDIATYPE,
+      mediaType = MEDIA_TYPE,
       schema = @Schema(implementation = HalRepresentation.class)
     )
   )

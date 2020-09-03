@@ -25,59 +25,119 @@ package com.cloudogu.scm.repositorytemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.github.legman.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sonia.scm.cache.Cache;
+import sonia.scm.cache.CacheManager;
+import sonia.scm.repository.Changeset;
+import sonia.scm.repository.NamespaceAndName;
+import sonia.scm.repository.PostReceiveRepositoryHookEvent;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryManager;
+import sonia.scm.repository.RepositoryPermissions;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
+import sonia.scm.web.security.AdministrationContext;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public class RepositoryTemplateCollector {
 
   private static final Logger LOG = LoggerFactory.getLogger(RepositoryTemplateCollector.class);
 
-  public static final String TEMPLATE_YML = "template.yml";
-  public static final String TEMPLATE_YAML = "template.yaml";
+  private static final String TEMPLATE_YML = "template.yml";
+  private static final String TEMPLATE_YAML = "template.yaml";
+  private static final String CACHE_NAME = "sonia.cache.repository.templates";
 
+  private final AdministrationContext administrationContext;
   private final RepositoryServiceFactory serviceFactory;
   private final RepositoryManager repositoryManager;
+  private final Cache<String, Collection<RepositoryTemplate>> cache;
 
-  private ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+
+  private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
   @Inject
-  public RepositoryTemplateCollector(RepositoryServiceFactory serviceFactory, RepositoryManager repositoryManager) {
+  public RepositoryTemplateCollector(AdministrationContext administrationContext, RepositoryServiceFactory serviceFactory, RepositoryManager repositoryManager, CacheManager cacheManager) {
+    this.administrationContext = administrationContext;
     this.serviceFactory = serviceFactory;
     this.repositoryManager = repositoryManager;
+    this.cache = cacheManager.getCache(CACHE_NAME);
   }
 
   public Collection<RepositoryTemplate> collect() {
-    Collection<RepositoryTemplate> repositoryTemplates = new ArrayList<>();
+    final Collection<RepositoryTemplate> repositoryTemplates = new ArrayList<>();
+    String cacheKey = "templates";
 
-    Collection<Repository> repositories = repositoryManager.getAll();
-    for (Repository repository : repositories) {
+    Collection<RepositoryTemplate> cachedRepoTemplates = cache.get(cacheKey);
+    if (cachedRepoTemplates != null) {
+      repositoryTemplates.addAll(cachedRepoTemplates);
+    } else {
+      administrationContext.runAsAdmin(() -> filterAllRepositoriesForTemplateFile(repositoryTemplates));
+      cache.put(cacheKey, repositoryTemplates);
+    }
+
+    filterTemplatesByUserPermission(repositoryTemplates);
+
+    return repositoryTemplates;
+  }
+
+  @Subscribe
+  public void onEvent(PostReceiveRepositoryHookEvent event) {
+    boolean clearCache;
+    try (RepositoryService repositoryService = serviceFactory.create(event.getRepository())) {
+      clearCache = wasTemplateFileEffected(event, repositoryService);
+      if (clearCache) {
+        cache.clear();
+      }
+    } catch (IOException e) {
+      LOG.error("could not clear repository template cache", e);
+    }
+  }
+
+  private boolean wasTemplateFileEffected(PostReceiveRepositoryHookEvent event, RepositoryService repositoryService) throws IOException {
+    boolean clearCache = false;
+    for (Changeset changeset : event.getContext().getChangesetProvider().getChangesets()) {
+      List<String> changedFiles = repositoryService.getModificationsCommand().revision(changeset.getId()).getModifications().getEffectedPaths();
+      clearCache = changedFiles.contains(TEMPLATE_YML) || changedFiles.contains(TEMPLATE_YAML);
+      if (clearCache) {
+        break;
+      }
+    }
+    return clearCache;
+  }
+
+  private void filterTemplatesByUserPermission(Collection<RepositoryTemplate> repositoryTemplates) {
+    repositoryTemplates.removeIf(repositoryTemplate -> {
+      String[] splittedNamespaceAndName = repositoryTemplate.getNamespaceAndName().split("/");
+      Repository repository = repositoryManager.get(new NamespaceAndName(splittedNamespaceAndName[0], splittedNamespaceAndName[1]));
+      return !RepositoryPermissions.read(repository).isPermitted();
+    });
+  }
+
+  private void filterAllRepositoriesForTemplateFile(Collection<RepositoryTemplate> repositoryTemplates) {
+    for (Repository repository : repositoryManager.getAll()) {
       try (RepositoryService repositoryService = serviceFactory.create(repository)) {
-        Optional<String> existingTemplateFile = templateFileExists(repositoryService);
-        if (existingTemplateFile.isPresent()) {
-          repositoryTemplates.add(mapRepositoryTemplateFromFile(repositoryService, existingTemplateFile));
+        Optional<String> templateFile = templateFileExists(repositoryService);
+        if (templateFile.isPresent()) {
+          repositoryTemplates.add(mapRepositoryTemplateFromFile(repositoryService, templateFile.get()));
         }
 
       } catch (IOException e) {
         LOG.error("could not read template file in repository", e);
       }
     }
-
-    return repositoryTemplates;
   }
 
-  private RepositoryTemplate mapRepositoryTemplateFromFile(RepositoryService repositoryService, Optional<String> existingTemplateFile) throws IOException {
-    InputStream templateYml = repositoryService.getCatCommand().getStream(existingTemplateFile.get());
+  private RepositoryTemplate mapRepositoryTemplateFromFile(RepositoryService repositoryService, String existingTemplateFile) throws IOException {
+    InputStream templateYml = repositoryService.getCatCommand().getStream(existingTemplateFile);
     RepositoryTemplate repositoryTemplate = mapper.readValue(templateYml, RepositoryTemplate.class);
     repositoryTemplate.setNamespaceAndName(repositoryService.getRepository().getNamespaceAndName().toString());
     return repositoryTemplate;
