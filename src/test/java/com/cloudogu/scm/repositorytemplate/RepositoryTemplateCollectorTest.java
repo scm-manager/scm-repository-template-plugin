@@ -69,6 +69,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -147,8 +148,6 @@ class RepositoryTemplateCollectorTest {
 
     assertThat(templates).hasSize(1);
     RepositoryTemplate template = templates.iterator().next();
-    assertThat(template.getEngine()).isEqualTo("mustache");
-    assertThat(template.getFiles().get(0).getName()).isEqualTo("README.md");
     assertThat(template.getNamespaceAndName()).isEqualTo(REPOSITORY.getNamespaceAndName().toString());
   }
 
@@ -206,7 +205,7 @@ class RepositoryTemplateCollectorTest {
     when(hookContext.getChangesetProvider()).thenReturn(changesetBuilder);
     when(changesetBuilder.getChangesets()).thenReturn(Arrays.asList(new Changeset()));
     when(repositoryService.getModificationsCommand()).thenReturn(modificationsCommandBuilder);
-    when(modificationsCommandBuilder.getModifications()).thenReturn(new Modifications("1", new Added("template.yaml")));
+    when(modificationsCommandBuilder.getModifications()).thenReturn(new Modifications("1", new Added("template.yml")));
 
     assertThat(cache.size()).isEqualTo(1);
 
@@ -246,13 +245,13 @@ class RepositoryTemplateCollectorTest {
 
   private void mockRepositoryServices() throws IOException {
     BufferedInputStream content = (BufferedInputStream) Resources.getResource("com/cloudogu/scm/repositorytemplate/template.yml").getContent();
-    when(catCommandBuilder.getStream(any())).thenReturn(content);
     when(repositoryManager.getAll()).thenReturn(ImmutableSet.of(REPOSITORY));
     when(repositoryManager.get(new NamespaceAndName(REPOSITORY.getNamespace(), REPOSITORY.getName()))).thenReturn(REPOSITORY);
     when(serviceFactory.create(REPOSITORY)).thenReturn(repositoryService);
     when(repositoryService.getBrowseCommand()).thenReturn(browseCommandBuilder);
     when(browseCommandBuilder.getBrowserResult()).thenReturn(new BrowserResult());
-    when(repositoryService.getCatCommand()).thenReturn(catCommandBuilder);
-    when(repositoryService.getRepository()).thenReturn(REPOSITORY);
+    lenient().when(catCommandBuilder.getStream(any())).thenReturn(content);
+    lenient().when(repositoryService.getCatCommand()).thenReturn(catCommandBuilder);
+    lenient().when(repositoryService.getRepository()).thenReturn(REPOSITORY);
   }
 }

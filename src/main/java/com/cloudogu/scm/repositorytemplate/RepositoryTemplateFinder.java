@@ -23,21 +23,29 @@
  */
 package com.cloudogu.scm.repositorytemplate;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import sonia.scm.repository.api.RepositoryService;
 
-import java.util.List;
+import java.io.IOException;
+import java.util.Optional;
 
-@Getter
-@Setter
-@NoArgsConstructor
-public class RepositoryTemplate {
-  private String namespaceAndName;
-  private String engine;
-  private List<RepositoryTemplateFile> files;
+public class RepositoryTemplateFinder {
 
-  public RepositoryTemplate(String namespaceAndName) {
-    this.namespaceAndName = namespaceAndName;
+  private RepositoryTemplateFinder() {}
+
+  public static final String TEMPLATE_YML = "template.yml";
+  public static final String TEMPLATE_YAML = "template.yaml";
+
+  public static Optional<String> templateFileExists(RepositoryService repositoryService) throws IOException {
+    if (fileExists(repositoryService, TEMPLATE_YML)) {
+      return Optional.of(TEMPLATE_YML);
+    } else if (fileExists(repositoryService, TEMPLATE_YAML)) {
+      return Optional.of(TEMPLATE_YAML);
+    } else {
+      return Optional.empty();
+    }
+  }
+
+  private static boolean fileExists(RepositoryService repositoryService, String templateYml) throws IOException {
+    return repositoryService.getBrowseCommand().setPath(templateYml).getBrowserResult() != null;
   }
 }
