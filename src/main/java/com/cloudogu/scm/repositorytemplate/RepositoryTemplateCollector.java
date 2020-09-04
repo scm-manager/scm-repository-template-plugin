@@ -26,8 +26,6 @@ package com.cloudogu.scm.repositorytemplate;
 import com.github.legman.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 import sonia.scm.cache.Cache;
 import sonia.scm.cache.CacheManager;
 import sonia.scm.repository.Changeset;
@@ -42,27 +40,24 @@ import sonia.scm.web.security.AdministrationContext;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import static com.cloudogu.scm.repositorytemplate.RepositoryTemplateFinder.TEMPLATE_YAML;
+import static com.cloudogu.scm.repositorytemplate.RepositoryTemplateFinder.TEMPLATE_YML;
+
 public class RepositoryTemplateCollector {
 
   private static final Logger LOG = LoggerFactory.getLogger(RepositoryTemplateCollector.class);
 
-  private static final String TEMPLATE_YML = "template.yml";
-  private static final String TEMPLATE_YAML = "template.yaml";
   private static final String CACHE_NAME = "sonia.cache.repository.templates";
 
   private final AdministrationContext administrationContext;
   private final RepositoryServiceFactory serviceFactory;
   private final RepositoryManager repositoryManager;
   private final Cache<String, Collection<RepositoryTemplate>> cache;
-
-  // SnakeYaml cannot find the classes without the right classloader
-  private final Yaml yaml = new Yaml(new CustomClassLoaderConstructor(RepositoryTemplateCollector.class.getClassLoader()));
 
   @Inject
   public RepositoryTemplateCollector(AdministrationContext administrationContext, RepositoryServiceFactory serviceFactory, RepositoryManager repositoryManager, CacheManager cacheManager) {
@@ -96,7 +91,7 @@ public class RepositoryTemplateCollector {
         cache.clear();
       }
     } catch (IOException e) {
-      LOG.error("could not clear repository template cache", e);
+      LOG.error("could not clear cached repository templates", e);
     }
   }
 
@@ -123,36 +118,14 @@ public class RepositoryTemplateCollector {
   private void filterAllRepositoriesForTemplateFile(Collection<RepositoryTemplate> repositoryTemplates) {
     for (Repository repository : repositoryManager.getAll()) {
       try (RepositoryService repositoryService = serviceFactory.create(repository)) {
-        Optional<String> templateFile = templateFileExists(repositoryService);
+        Optional<String> templateFile = RepositoryTemplateFinder.templateFileExists(repositoryService);
         if (templateFile.isPresent()) {
-          repositoryTemplates.add(mapRepositoryTemplateFromFile(repositoryService, templateFile.get()));
+          repositoryTemplates.add(new RepositoryTemplate(repository.getNamespaceAndName().toString()));
         }
 
       } catch (IOException e) {
         LOG.error("could not read template file in repository", e);
       }
     }
-  }
-
-  private RepositoryTemplate mapRepositoryTemplateFromFile(RepositoryService repositoryService, String existingTemplateFile) throws IOException {
-    try (InputStream templateYml = repositoryService.getCatCommand().getStream(existingTemplateFile)) {
-      RepositoryTemplate repositoryTemplate = yaml.loadAs(templateYml, RepositoryTemplate.class);
-      repositoryTemplate.setNamespaceAndName(repositoryService.getRepository().getNamespaceAndName().toString());
-      return repositoryTemplate;
-    }
-  }
-
-  private Optional<String> templateFileExists(RepositoryService repositoryService) throws IOException {
-    if (fileExists(repositoryService, TEMPLATE_YML)) {
-      return Optional.of(TEMPLATE_YML);
-    } else if (fileExists(repositoryService, TEMPLATE_YAML)) {
-      return Optional.of(TEMPLATE_YAML);
-    } else {
-      return Optional.empty();
-    }
-  }
-
-  private boolean fileExists(RepositoryService repositoryService, String templateYml) throws IOException {
-    return repositoryService.getBrowseCommand().setPath(templateYml).getBrowserResult() != null;
   }
 }
