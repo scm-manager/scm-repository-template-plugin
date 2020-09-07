@@ -23,6 +23,7 @@
  */
 package com.cloudogu.scm.repositorytemplate;
 
+import sonia.scm.NotFoundException;
 import sonia.scm.repository.api.RepositoryService;
 
 import java.io.IOException;
@@ -30,7 +31,8 @@ import java.util.Optional;
 
 public class RepositoryTemplateFinder {
 
-  private RepositoryTemplateFinder() {}
+  private RepositoryTemplateFinder() {
+  }
 
   public static final String TEMPLATE_YML = "template.yml";
   public static final String TEMPLATE_YAML = "template.yaml";
@@ -40,12 +42,16 @@ public class RepositoryTemplateFinder {
       return Optional.of(TEMPLATE_YML);
     } else if (fileExists(repositoryService, TEMPLATE_YAML)) {
       return Optional.of(TEMPLATE_YAML);
-    } else {
-      return Optional.empty();
     }
+    return Optional.empty();
+
   }
 
   private static boolean fileExists(RepositoryService repositoryService, String templateYml) throws IOException {
-    return repositoryService.getBrowseCommand().setPath(templateYml).getBrowserResult() != null;
+    try {
+    return repositoryService.getBrowseCommand().setPath(templateYml).getBrowserResult() != null; }
+    catch (NotFoundException e) {
+      return false;
+    }
   }
 }
