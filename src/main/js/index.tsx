@@ -23,5 +23,6 @@
  */
 
 import {binder} from "@scm-manager/ui-extensions";
+import TemplateSelect from "./TemplateSelect";
 
-binder.bind("", "");
+binder.bind("repos.create.initialize", TemplateSelect);

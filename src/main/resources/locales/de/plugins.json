@@ -1,5 +1,6 @@
 {
   "scm-repository-template-plugin": {
-
+    "templates": "Vorlagen",
+    "templateHelpText": "Das Repository, welches als Vorlage verwendet werden soll."
   }
 }
