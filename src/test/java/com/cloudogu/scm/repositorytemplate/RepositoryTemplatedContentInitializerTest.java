@@ -69,6 +69,6 @@ class RepositoryTemplatedContentInitializerTest {
 
     initializer.initialize(context);
 
-    verify(templater).render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY, context);
+    verify(templater).render(TEMPLATE_REPOSITORY, context);
   }
 }

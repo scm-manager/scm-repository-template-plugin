@@ -33,7 +33,7 @@ import sonia.scm.NotFoundException;
 import sonia.scm.repository.BrowserResult;
 import sonia.scm.repository.FileObject;
 import sonia.scm.repository.Repository;
-import sonia.scm.repository.RepositoryContentInitializer;
+import sonia.scm.repository.RepositoryContentInitializer.InitializerContext;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
 import sonia.scm.template.Template;
@@ -60,6 +60,7 @@ public class RepositoryTemplater {
 
   // SnakeYaml cannot find the classes without the right classloader
   private final Yaml yaml = new Yaml(new CustomClassLoaderConstructor(RepositoryTemplateCollector.class.getClassLoader()));
+  private InitializerContext context;
 
   @Inject
   public RepositoryTemplater(TemplateEngineFactory engineFactory, RepositoryServiceFactory repositoryServiceFactory) {
@@ -67,51 +68,49 @@ public class RepositoryTemplater {
     this.repositoryServiceFactory = repositoryServiceFactory;
   }
 
-  public void render(Repository template, Repository target, RepositoryContentInitializer.InitializerContext context) {
+  public void render(Repository template, InitializerContext context) {
+    this.context = context;
     try (
       RepositoryService templateService = repositoryServiceFactory.create(template);
-      RepositoryService targetService = repositoryServiceFactory.create(target)
     ) {
-      render(templateService, targetService);
+      render(templateService);
     } catch (IOException e) {
       LOG.error("could not use template on new repository", e);
     }
   }
 
-  private void render(RepositoryService templateService, RepositoryService targetService) throws IOException {
+  private void render(RepositoryService templateService) throws IOException {
     RepositoryTemplate repositoryTemplate = parseTemplateConfig(templateService);
     TemplateEngine engine = setupTemplateEngine(repositoryTemplate);
 
     for (RepositoryTemplateFile templateFile : repositoryTemplate.getFiles()) {
       BrowserResult result = templateService.getBrowseCommand().setPath(templateFile.getName()).setRecursive(true).getBrowserResult();
-      copyFileRecursively(templateService, targetService, engine, templateFile, result.getFile());
+      copyFileRecursively(templateService, engine, templateFile, result.getFile());
     }
   }
 
-  private void copyFileRecursively(RepositoryService templateService, RepositoryService targetService, TemplateEngine engine, RepositoryTemplateFile templateFile, FileObject file) throws IOException {
+  private void copyFileRecursively(RepositoryService templateService, TemplateEngine engine, RepositoryTemplateFile templateFile, FileObject file) throws IOException {
     if (file.isDirectory()) {
       for (FileObject child : file.getChildren()) {
-        copyFileRecursively(templateService, targetService, engine, templateFile, child);
+        copyFileRecursively(templateService, engine, templateFile, child);
       }
     } else {
-      copyToTargetRepository(templateService, targetService, engine, templateFile, file.getPath());
+      copyToTargetRepository(templateService, engine, templateFile, file.getPath());
     }
   }
 
-  private void copyToTargetRepository(RepositoryService templateService, RepositoryService targetService, TemplateEngine engine, RepositoryTemplateFile templateFile, String filePath) throws IOException {
+  private void copyToTargetRepository(RepositoryService templateService, TemplateEngine engine, RepositoryTemplateFile templateFile, String filePath) throws IOException {
     if (templateFile.isFiltered()) {
-      copyFile(templateService, targetService, filePath, Optional.of(new TemplateFilter(targetService, engine, filePath)));
+      copyFile(templateService, filePath, Optional.of(new TemplateFilter(context, engine, filePath)));
     } else {
-      copyFile(templateService, targetService, filePath, Optional.empty());
+      copyFile(templateService, filePath, Optional.empty());
     }
   }
 
-  private void copyFile(RepositoryService templateRepositoryService, RepositoryService targetRepositoryService, String filepath, Optional<TemplateFilter> templateFilter) throws IOException {
+  private void copyFile(RepositoryService templateRepositoryService, String filepath, Optional<TemplateFilter> templateFilter) throws IOException {
     try (InputStream content = templateRepositoryService.getCatCommand().getStream(filepath)) {
       templateFilter.ifPresent(filter -> filter.filter(content));
-      targetRepositoryService.getModifyCommand().useDefaultPath(true).createFile(filepath)
-        .setOverwrite(true)
-        .withData(content);
+      context.create(filepath).from(content);
     }
   }
 
@@ -151,12 +150,12 @@ public class RepositoryTemplater {
   }
 
   static class TemplateFilter {
-    private final RepositoryService targetRepositoryService;
+    private final InitializerContext context;
     private final TemplateEngine engine;
     private final String filePath;
 
-    private TemplateFilter(RepositoryService targetRepositoryService, TemplateEngine engine, String filePath) {
-      this.targetRepositoryService = targetRepositoryService;
+    private TemplateFilter(InitializerContext context, TemplateEngine engine, String filePath) {
+      this.context = context;
       this.engine = engine;
       this.filePath = filePath;
     }
@@ -166,7 +165,7 @@ public class RepositoryTemplater {
         Template template = engine.getTemplate(filePath, content);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter writer = new OutputStreamWriter(baos, StandardCharsets.UTF_8);
-        template.execute(writer, targetRepositoryService.getRepository());
+        template.execute(writer, context.getRepository());
         writer.flush();
       } catch (IOException e) {
         LOG.error("could not perform templating on file " + filePath, e);
