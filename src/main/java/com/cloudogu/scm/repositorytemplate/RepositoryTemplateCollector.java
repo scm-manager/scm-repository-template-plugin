@@ -26,12 +26,14 @@ package com.cloudogu.scm.repositorytemplate;
 import com.github.legman.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sonia.scm.HandlerEventType;
 import sonia.scm.cache.Cache;
 import sonia.scm.cache.CacheManager;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.PostReceiveRepositoryHookEvent;
 import sonia.scm.repository.Repository;
+import sonia.scm.repository.RepositoryEvent;
 import sonia.scm.repository.RepositoryManager;
 import sonia.scm.repository.RepositoryPermissions;
 import sonia.scm.repository.api.RepositoryService;
@@ -95,6 +97,13 @@ public class RepositoryTemplateCollector {
     }
   }
 
+  @Subscribe
+  public void onEvent(RepositoryEvent event) {
+    if (event.getEventType() == HandlerEventType.DELETE) {
+      cache.clear();
+    }
+  }
+
   private boolean wasTemplateFileEffected(PostReceiveRepositoryHookEvent event, RepositoryService repositoryService) throws IOException {
     boolean clearCache = false;
     for (Changeset changeset : event.getContext().getChangesetProvider().getChangesets()) {
@@ -122,7 +131,6 @@ public class RepositoryTemplateCollector {
         if (templateFile.isPresent()) {
           repositoryTemplates.add(new RepositoryTemplate(repository.getNamespaceAndName().toString()));
         }
-
       } catch (IOException e) {
         LOG.error("could not read template file in repository", e);
       }

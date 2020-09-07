@@ -35,6 +35,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import sonia.scm.HandlerEventType;
 import sonia.scm.cache.Cache;
 import sonia.scm.cache.CacheManager;
 import sonia.scm.cache.MapCacheManager;
@@ -45,6 +46,7 @@ import sonia.scm.repository.Modifications;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.PostReceiveRepositoryHookEvent;
 import sonia.scm.repository.Repository;
+import sonia.scm.repository.RepositoryEvent;
 import sonia.scm.repository.RepositoryHookEvent;
 import sonia.scm.repository.RepositoryHookType;
 import sonia.scm.repository.RepositoryManager;
@@ -210,6 +212,18 @@ class RepositoryTemplateCollectorTest {
     assertThat(cache.size()).isEqualTo(1);
 
     collector.onEvent(new PostReceiveRepositoryHookEvent(new RepositoryHookEvent(hookContext, REPOSITORY, RepositoryHookType.POST_RECEIVE)));
+
+    assertThat(cache.size()).isZero();
+  }
+
+  @Test
+  void shouldClearCacheIfRepositoryWasDeleted() {
+    Cache<String, List<RepositoryTemplate>> cache = cacheManager.getCache("sonia.cache.repository.templates");
+    cache.put("templates", Collections.emptyList());
+
+    assertThat(cache.size()).isEqualTo(1);
+
+    collector.onEvent(new RepositoryEvent(HandlerEventType.DELETE, REPOSITORY));
 
     assertThat(cache.size()).isZero();
   }
