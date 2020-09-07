@@ -1,6 +1,9 @@
 {
   "scm-repository-template-plugin": {
     "templates": "Templates",
-    "templateHelpText": "The Repository, that should be used as a template."
+    "templateHelpText": "The Repository, that should be used as a template.",
+    "template": {
+      "readme": "Only README.md"
+    }
   }
 }

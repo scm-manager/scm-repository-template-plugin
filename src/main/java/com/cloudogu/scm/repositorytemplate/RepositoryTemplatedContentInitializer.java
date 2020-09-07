@@ -23,7 +23,6 @@
  */
 package com.cloudogu.scm.repositorytemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import sonia.scm.plugin.Extension;
 import sonia.scm.repository.NamespaceAndName;
@@ -39,8 +38,6 @@ public class RepositoryTemplatedContentInitializer implements RepositoryContentI
 
   private final RepositoryManager repositoryManager;
   private final RepositoryTemplater templater;
-
-  private final ObjectMapper mapper = new ObjectMapper();
 
   @Inject
   public RepositoryTemplatedContentInitializer(RepositoryManager repositoryManager, RepositoryTemplater templater) {

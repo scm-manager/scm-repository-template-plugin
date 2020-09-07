@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import {binder} from "@scm-manager/ui-extensions";
+import { binder } from "@scm-manager/ui-extensions";
 import TemplateSelect from "./TemplateSelect";
 
 binder.bind("repos.create.initialize", TemplateSelect);
