@@ -36,6 +36,7 @@ import sonia.scm.NotFoundException;
 import sonia.scm.repository.BrowserResult;
 import sonia.scm.repository.FileObject;
 import sonia.scm.repository.Repository;
+import sonia.scm.repository.RepositoryContentInitializer;
 import sonia.scm.repository.RepositoryTestData;
 import sonia.scm.repository.api.BrowseCommandBuilder;
 import sonia.scm.repository.api.CatCommandBuilder;
@@ -85,6 +86,8 @@ class RepositoryTemplaterTest {
   private BrowserResult browserResult;
   @Mock(answer = Answers.RETURNS_SELF)
   private ModifyCommandBuilder.WithOverwriteFlagContentLoader contentLoader;
+  @Mock
+  private RepositoryContentInitializer.InitializerContext context;
 
   @InjectMocks
   private RepositoryTemplater repositoryTemplater;
@@ -97,21 +100,21 @@ class RepositoryTemplaterTest {
     when(browseCommandBuilder.getBrowserResult()).thenReturn(null);
     when(templateRepositoryService.getRepository()).thenReturn(TEMPLATE_REPOSITORY);
 
-    assertThrows(NotFoundException.class, () -> repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY));
+    assertThrows(NotFoundException.class, () -> repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY, context));
   }
 
   @Test
   void shouldThrowYamlExceptionIfTemplateFileCouldNotBeParsed() throws IOException {
     mockTemplateService("com/cloudogu/scm/repositorytemplate/empty_template.yml");
 
-    assertThrows(YAMLException.class, () -> repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY));
+    assertThrows(YAMLException.class, () -> repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY, context));
   }
 
   @Test
   void shouldNotModifyTargetRepositoryIfNoFilesDefined() throws IOException {
     mockTemplateService("com/cloudogu/scm/repositorytemplate/template_without_files.yml");
 
-    repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY);
+    repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY, context);
 
     verify(modifyCommandBuilder, never()).createFile(any());
   }
@@ -120,7 +123,7 @@ class RepositoryTemplaterTest {
   void shouldUseDefaultEngineIfNotDefined() throws IOException {
     mockTemplateService("com/cloudogu/scm/repositorytemplate/template_without_engine.yml");
 
-    repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY);
+    repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY, context);
 
     verify(engineFactory).getEngine("mustache");
   }
@@ -129,7 +132,7 @@ class RepositoryTemplaterTest {
   void shouldUseDefinedEngine() throws IOException {
     mockTemplateService("com/cloudogu/scm/repositorytemplate/template_without_files.yml");
 
-    repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY);
+    repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY, context);
 
     verify(engineFactory).getEngine("jexl");
   }
@@ -139,7 +142,7 @@ class RepositoryTemplaterTest {
     mockTemplateService("com/cloudogu/scm/repositorytemplate/template_without_engine.yml");
     when(engineFactory.getEngine(anyString())).thenReturn(null);
 
-    assertThrows(NotFoundException.class, () -> repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY));
+    assertThrows(NotFoundException.class, () -> repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY, context));
   }
 
   @Test
@@ -150,7 +153,7 @@ class RepositoryTemplaterTest {
     when(targetRepositoryService.getModifyCommand()).thenReturn(modifyCommandBuilder);
     when(modifyCommandBuilder.createFile(anyString())).thenReturn(contentLoader);
 
-    repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY);
+    repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY, context);
 
     verify(modifyCommandBuilder, times(1)).createFile("README.md");
   }
@@ -164,7 +167,7 @@ class RepositoryTemplaterTest {
     when(targetRepositoryService.getRepository()).thenReturn(TARGET_REPOSITORY);
     when(modifyCommandBuilder.createFile(anyString())).thenReturn(contentLoader);
 
-    repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY);
+    repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY, context);
 
     verify(modifyCommandBuilder, times(3)).createFile(anyString());
   }
@@ -182,7 +185,7 @@ class RepositoryTemplaterTest {
     when(targetRepositoryService.getModifyCommand()).thenReturn(modifyCommandBuilder);
     when(modifyCommandBuilder.createFile(anyString())).thenReturn(contentLoader);
 
-    repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY);
+    repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY, context);
 
     verify(modifyCommandBuilder, times(2)).createFile(anyString());
   }
@@ -201,7 +204,7 @@ class RepositoryTemplaterTest {
     when(targetRepositoryService.getModifyCommand()).thenReturn(modifyCommandBuilder);
     when(modifyCommandBuilder.createFile(anyString())).thenReturn(contentLoader);
 
-    repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY);
+    repositoryTemplater.render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY, context);
 
     verify(modifyCommandBuilder, times(3)).createFile(anyString());
   }

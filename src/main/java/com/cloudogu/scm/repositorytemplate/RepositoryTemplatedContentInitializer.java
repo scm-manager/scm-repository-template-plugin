@@ -52,7 +52,7 @@ public class RepositoryTemplatedContentInitializer implements RepositoryContentI
       String[] splitRepository = repositoryModel.asText().split("/");
       Repository templateRepository = repositoryManager.get(new NamespaceAndName(splitRepository[0], splitRepository[1]));
       Repository targetRepository = context.getRepository();
-      templater.render(templateRepository, targetRepository);
+      templater.render(templateRepository, targetRepository, context);
     }
   }
 

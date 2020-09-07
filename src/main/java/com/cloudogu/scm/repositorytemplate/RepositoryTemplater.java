@@ -33,6 +33,7 @@ import sonia.scm.NotFoundException;
 import sonia.scm.repository.BrowserResult;
 import sonia.scm.repository.FileObject;
 import sonia.scm.repository.Repository;
+import sonia.scm.repository.RepositoryContentInitializer;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
 import sonia.scm.template.Template;
@@ -66,7 +67,7 @@ public class RepositoryTemplater {
     this.repositoryServiceFactory = repositoryServiceFactory;
   }
 
-  public void render(Repository template, Repository target) {
+  public void render(Repository template, Repository target, RepositoryContentInitializer.InitializerContext context) {
     try (
       RepositoryService templateService = repositoryServiceFactory.create(template);
       RepositoryService targetService = repositoryServiceFactory.create(target)

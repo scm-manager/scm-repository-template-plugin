@@ -23,10 +23,7 @@
  */
 package com.cloudogu.scm.repositorytemplate;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.TextNode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +36,6 @@ import sonia.scm.repository.RepositoryContentInitializer;
 import sonia.scm.repository.RepositoryManager;
 import sonia.scm.repository.RepositoryTestData;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,8 +48,6 @@ class RepositoryTemplatedContentInitializerTest {
   private static final Repository TEMPLATE_REPOSITORY = RepositoryTestData.createHeartOfGold();
   private static final Repository TARGET_REPOSITORY = RepositoryTestData.create42Puzzle();
 
-  private static final ObjectMapper mapper = new ObjectMapper();
-
   @Mock
   private RepositoryTemplater templater;
   @Mock
@@ -61,14 +55,13 @@ class RepositoryTemplatedContentInitializerTest {
   @Mock
   private RepositoryContentInitializer.InitializerContext context;
 
-
   @InjectMocks
   private RepositoryTemplatedContentInitializer initializer;
 
   @Test
-  void shouldInitializeRepository() throws JsonProcessingException {
+  void shouldInitializeRepository() {
     Map<String, JsonNode> creationContext = new HashMap<>();
-    JsonNode templateId = mapper.readTree("{\"templateId\":\"hitchhiker/heartOfGold\"}");
+    TextNode templateId = new TextNode("hitchhiker/heartOfGold");
     creationContext.put("templateId", templateId);
     when(context.getCreationContext()).thenReturn(creationContext);
     when(repositoryManager.get(new NamespaceAndName("hitchhiker", "heartOfGold"))).thenReturn(TEMPLATE_REPOSITORY);
@@ -76,6 +69,6 @@ class RepositoryTemplatedContentInitializerTest {
 
     initializer.initialize(context);
 
-    verify(templater).render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY);
+    verify(templater).render(TEMPLATE_REPOSITORY, TARGET_REPOSITORY, context);
   }
 }
