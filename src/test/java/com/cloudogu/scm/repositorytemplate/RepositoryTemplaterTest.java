@@ -27,15 +27,12 @@ import sonia.scm.template.TemplateType;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.Writer;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;

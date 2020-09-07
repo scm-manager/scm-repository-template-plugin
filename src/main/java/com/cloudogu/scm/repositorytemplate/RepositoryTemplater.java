@@ -83,21 +83,17 @@ public class RepositoryTemplater {
 
     for (RepositoryTemplateFile templateFile : repositoryTemplate.getFiles()) {
       BrowserResult result = templateService.getBrowseCommand().setPath(templateFile.getName()).setRecursive(true).getBrowserResult();
-      if (result.getFile().isDirectory()) {
-        copyFilesInDirectoryRecursively(templateService, targetService, engine, templateFile, result.getFile());
-      } else {
-        copyToTargetRepository(templateService, targetService, engine, templateFile, result.getFile().getPath());
-      }
+      copyFileRecursively(templateService, targetService, engine, templateFile, result.getFile());
     }
   }
 
-  private void copyFilesInDirectoryRecursively(RepositoryService templateService, RepositoryService targetService, TemplateEngine engine, RepositoryTemplateFile templateFile, FileObject dir) throws IOException {
-    for (FileObject file : dir.getChildren()) {
-      if (file.isDirectory()) {
-        copyFilesInDirectoryRecursively(templateService, targetService, engine, templateFile, file);
-      } else {
-        copyToTargetRepository(templateService, targetService, engine, templateFile, file.getPath());
+  private void copyFileRecursively(RepositoryService templateService, RepositoryService targetService, TemplateEngine engine, RepositoryTemplateFile templateFile, FileObject file) throws IOException {
+    if (file.isDirectory()) {
+      for (FileObject child : file.getChildren()) {
+        copyFileRecursively(templateService, targetService, engine, templateFile, child);
       }
+    } else {
+      copyToTargetRepository(templateService, targetService, engine, templateFile, file.getPath());
     }
   }
 
