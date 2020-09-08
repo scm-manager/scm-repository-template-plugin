@@ -24,8 +24,11 @@
 package com.cloudogu.scm.repositorytemplate;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper
 public abstract class RepositoryTemplateMapper {
+
+  @Mapping(target = "attributes", ignore = true) // We do not map HAL attributes
   public abstract RepositoryTemplateDto map(RepositoryTemplate repositoryTemplate);
 }

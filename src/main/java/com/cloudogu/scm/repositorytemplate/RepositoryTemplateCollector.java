@@ -99,9 +99,18 @@ public class RepositoryTemplateCollector {
 
   @Subscribe
   public void onEvent(RepositoryEvent event) {
-    if (event.getEventType() == HandlerEventType.DELETE) {
+    if (wasRepositoryDeleted(event) || wasRepositoryRenamed(event)) {
       cache.clear();
     }
+  }
+
+  private boolean wasRepositoryRenamed(RepositoryEvent event) {
+    return event.getEventType() == HandlerEventType.MODIFY
+      && !event.getItem().getNamespaceAndName().toString().equals(event.getOldItem().getNamespaceAndName().toString());
+  }
+
+  private boolean wasRepositoryDeleted(RepositoryEvent event) {
+    return event.getEventType() == HandlerEventType.DELETE;
   }
 
   private boolean wasTemplateFileEffected(PostReceiveRepositoryHookEvent event, RepositoryService repositoryService) throws IOException {

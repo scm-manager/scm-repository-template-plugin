@@ -57,6 +57,7 @@ public class RepositoryTemplatedContentInitializer implements RepositoryContentI
 
   @Override
   public Optional<Class<?>> getType() {
-    return Optional.of(RepositoryFilterModel.class);
+    // We will need this later if we add more fields to the templateFilterModel
+    return Optional.empty();
   }
 }

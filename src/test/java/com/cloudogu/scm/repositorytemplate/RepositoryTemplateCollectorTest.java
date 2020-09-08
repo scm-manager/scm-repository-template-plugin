@@ -228,6 +228,19 @@ class RepositoryTemplateCollectorTest {
     assertThat(cache.size()).isZero();
   }
 
+
+  @Test
+  void shouldClearCacheIfRepositoryWasRenamed() {
+    Cache<String, List<RepositoryTemplate>> cache = cacheManager.getCache("sonia.cache.repository.templates");
+    cache.put("templates", Collections.emptyList());
+
+    assertThat(cache.size()).isEqualTo(1);
+
+    collector.onEvent(new RepositoryEvent(HandlerEventType.MODIFY, REPOSITORY, RepositoryTestData.create42Puzzle()));
+
+    assertThat(cache.size()).isZero();
+  }
+
   @Test
   void shouldNotClearCacheIfTemplateFileWasNotEffected() throws IOException {
     Cache<String, List<RepositoryTemplate>> cache = cacheManager.getCache("sonia.cache.repository.templates");
