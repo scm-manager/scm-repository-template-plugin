@@ -56,6 +56,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -143,7 +144,7 @@ class RepositoryTemplaterTest {
   }
 
   @Test
-  void shouldCopyAndTemplateFilesWithoutFilter() throws IOException {
+  void shouldOnlyCopyFilesWithoutFilter() throws IOException {
     mockTemplateService("com/cloudogu/scm/repositorytemplate/template_files_without_filter.yml");
     FileObject fileObject = createFileObject("README.md");
     when(browserResult.getFile()).thenReturn(fileObject);
@@ -159,7 +160,6 @@ class RepositoryTemplaterTest {
     mockTemplateService("com/cloudogu/scm/repositorytemplate/template.yml");
     FileObject fileObject = createFileObject("README.md");
     when(browserResult.getFile()).thenReturn(fileObject);
-    when(targetRepositoryService.getRepository()).thenReturn(TARGET_REPOSITORY);
     when(context.create(anyString())).thenReturn(createFile);
 
     repositoryTemplater.render(TEMPLATE_REPOSITORY, context);
@@ -174,9 +174,8 @@ class RepositoryTemplaterTest {
 
     FileObject testMd = createFileObject("src/test.md");
     FileObject docsMd = createFileObject("src/docs.md");
-    FileObject src = createFileObject("src", ImmutableList.of(testMd, docsMd));
+    createFileObject("src", ImmutableList.of(testMd, docsMd));
 
-    when(browserResult.getFile()).thenReturn(src);
     when(context.create(anyString())).thenReturn(createFile);
 
     repositoryTemplater.render(TEMPLATE_REPOSITORY, context);
@@ -189,12 +188,14 @@ class RepositoryTemplaterTest {
     mockTemplateService("com/cloudogu/scm/repositorytemplate/template_only_dir.yml");
 
     FileObject testMd = createFileObject("test.md");
+    FileObject templateYml = createFileObject("template.yml");
     FileObject docsMd = createFileObject("src/main/docs.md");
     FileObject buildMd = createFileObject("src/main/build.md");
-    FileObject src = createFileObject("src", ImmutableList.of(docsMd, buildMd));
-    FileObject root = createFileObject("", ImmutableList.of(testMd, src));
+    FileObject packageMd = createFileObject("src/main/packageMd.md");
+    FileObject main = createFileObject("src/main", ImmutableList.of(docsMd, buildMd, packageMd));
+    FileObject src = createFileObject("src", ImmutableList.of(main));
+    createFileObject("", ImmutableList.of(testMd, templateYml, src));
 
-    when(browserResult.getFile()).thenReturn(root);
     when(context.create(anyString())).thenReturn(createFile);
 
     repositoryTemplater.render(TEMPLATE_REPOSITORY, context);
@@ -202,25 +203,35 @@ class RepositoryTemplaterTest {
     verify(context, times(3)).create(anyString());
   }
 
-  private FileObject createFileObject(String path) {
-    FileObject testMd = new FileObject();
-    testMd.setPath(path);
-    return testMd;
+
+  private void mockNestedBrowseCommandBuilder(String path, FileObject object) throws IOException {
+    BrowseCommandBuilder mockedBrowseCommandBuilder = mock(BrowseCommandBuilder.class, Answers.RETURNS_SELF);
+    lenient().doReturn(mockedBrowseCommandBuilder).when(browseCommandBuilder).setPath(path);
+    lenient().doReturn(new BrowserResult("1", object)).when(mockedBrowseCommandBuilder).getBrowserResult();
   }
 
-  private FileObject createFileObject(String path, List<FileObject> children) {
+  private FileObject createFileObject(String path) throws IOException {
+    FileObject fileObject = new FileObject();
+    fileObject.setPath(path);
+    mockNestedBrowseCommandBuilder(path, fileObject);
+    return fileObject;
+  }
+
+  private FileObject createFileObject(String path, List<FileObject> children) throws IOException {
     FileObject fileObject = createFileObject(path);
     fileObject.setDirectory(true);
     fileObject.setChildren(children);
+    mockNestedBrowseCommandBuilder(path, fileObject);
+
     return fileObject;
   }
 
   private void mockTemplateService(String resourceFile) throws IOException {
     BufferedInputStream content = (BufferedInputStream) Resources.getResource(resourceFile).getContent();
     when(serviceFactory.create(TEMPLATE_REPOSITORY)).thenReturn(templateRepositoryService);
-    lenient().when(serviceFactory.create(TARGET_REPOSITORY)).thenReturn(targetRepositoryService);
     when(templateRepositoryService.getBrowseCommand()).thenReturn(browseCommandBuilder);
-    when(browseCommandBuilder.getBrowserResult()).thenReturn(browserResult);
+    lenient().when(browseCommandBuilder.getBrowserResult()).thenReturn(browserResult);
+    lenient().when(serviceFactory.create(TARGET_REPOSITORY)).thenReturn(targetRepositoryService);
     lenient().when(catCommandBuilder.getStream(any())).thenReturn(content);
     lenient().when(templateRepositoryService.getCatCommand()).thenReturn(catCommandBuilder);
     lenient().when(templateRepositoryService.getRepository()).thenReturn(TEMPLATE_REPOSITORY);

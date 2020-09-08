@@ -46,7 +46,6 @@ import static org.mockito.Mockito.when;
 class RepositoryTemplatedContentInitializerTest {
 
   private static final Repository TEMPLATE_REPOSITORY = RepositoryTestData.createHeartOfGold();
-  private static final Repository TARGET_REPOSITORY = RepositoryTestData.create42Puzzle();
 
   @Mock
   private RepositoryTemplater templater;
@@ -65,7 +64,6 @@ class RepositoryTemplatedContentInitializerTest {
     creationContext.put("templateId", templateId);
     when(context.getCreationContext()).thenReturn(creationContext);
     when(repositoryManager.get(new NamespaceAndName("hitchhiker", "heartOfGold"))).thenReturn(TEMPLATE_REPOSITORY);
-    when(context.getRepository()).thenReturn(TARGET_REPOSITORY);
 
     initializer.initialize(context);
 
