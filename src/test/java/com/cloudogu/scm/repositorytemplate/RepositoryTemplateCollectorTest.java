@@ -42,6 +42,7 @@ import sonia.scm.cache.MapCacheManager;
 import sonia.scm.repository.Added;
 import sonia.scm.repository.BrowserResult;
 import sonia.scm.repository.Changeset;
+import sonia.scm.repository.FileObject;
 import sonia.scm.repository.Modifications;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.PostReceiveRepositoryHookEvent;
@@ -273,10 +274,12 @@ class RepositoryTemplateCollectorTest {
   private void mockRepositoryServices() throws IOException {
     BufferedInputStream content = (BufferedInputStream) Resources.getResource("com/cloudogu/scm/repositorytemplate/template.yml").getContent();
     when(repositoryManager.getAll()).thenReturn(ImmutableSet.of(REPOSITORY));
-    when(repositoryManager.get(new NamespaceAndName(REPOSITORY.getNamespace(), REPOSITORY.getName()))).thenReturn(REPOSITORY);
     when(serviceFactory.create(REPOSITORY)).thenReturn(repositoryService);
     when(repositoryService.getBrowseCommand()).thenReturn(browseCommandBuilder);
-    when(browseCommandBuilder.getBrowserResult()).thenReturn(new BrowserResult());
+    FileObject fileObject = new FileObject();
+    fileObject.setName("template.yml");
+    when(browseCommandBuilder.getBrowserResult()).thenReturn(new BrowserResult("1", fileObject));
+    lenient().when(repositoryManager.get(new NamespaceAndName(REPOSITORY.getNamespace(), REPOSITORY.getName()))).thenReturn(REPOSITORY);
     lenient().when(catCommandBuilder.getStream(any())).thenReturn(content);
     lenient().when(repositoryService.getCatCommand()).thenReturn(catCommandBuilder);
     lenient().when(repositoryService.getRepository()).thenReturn(REPOSITORY);

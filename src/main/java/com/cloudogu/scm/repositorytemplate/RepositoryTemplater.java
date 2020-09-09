@@ -26,8 +26,6 @@ package com.cloudogu.scm.repositorytemplate;
 import com.google.common.base.Strings;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 import org.yaml.snakeyaml.error.YAMLException;
@@ -57,8 +55,6 @@ import java.util.Collections;
 import java.util.Optional;
 
 public class RepositoryTemplater {
-
-  private static final Logger LOG = LoggerFactory.getLogger(RepositoryTemplater.class);
 
   private final TemplateEngineFactory engineFactory;
   private final RepositoryServiceFactory repositoryServiceFactory;
@@ -168,18 +164,11 @@ public class RepositoryTemplater {
     try {
       RepositoryTemplate repositoryTemplate = yaml.loadAs(templateYml, RepositoryTemplate.class);
       if (repositoryTemplate == null) {
-        throw new TemplateParsingException(
-          ContextEntry.ContextBuilder.entity(RepositoryTemplate.class, templateFile).build(),
-          "repository template invalid -> could not parse " + templateFile
-        );
+        throw new TemplateParsingException(templateFile);
       }
       return repositoryTemplate;
     } catch (YAMLException ex) {
-      throw new TemplateParsingException(
-        ContextEntry.ContextBuilder.entity(RepositoryTemplate.class, templateFile).build(),
-        "repository template invalid -> could not parse " + templateFile,
-        ex
-      );
+      throw new TemplateParsingException(templateFile, ex);
     }
   }
 
@@ -203,11 +192,7 @@ public class RepositoryTemplater {
         writer.flush();
         return baos;
       } catch (IOException ex) {
-        throw new TemplateRenderingException(
-          ContextEntry.ContextBuilder.entity(RepositoryTemplateFile.class, filePath).build(),
-          "could not template " + filePath,
-          ex
-        );
+        throw new TemplateRenderingException(filePath, ex);
       }
     }
   }

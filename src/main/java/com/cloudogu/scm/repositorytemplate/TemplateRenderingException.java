@@ -26,14 +26,13 @@ package com.cloudogu.scm.repositorytemplate;
 import sonia.scm.ContextEntry;
 import sonia.scm.ExceptionWithContext;
 
-import java.util.List;
-
 public class TemplateRenderingException extends ExceptionWithContext {
 
   private static final String CODE = "4JSA4ucU51";
 
-  public TemplateRenderingException(List<ContextEntry> context, String message, Exception cause) {
-    super(context, message, cause);
+  public TemplateRenderingException(String filePath, Exception cause) {
+    super(ContextEntry.ContextBuilder.entity(RepositoryTemplateFile.class, filePath).build(),
+      "could not template " + filePath, cause);
   }
 
   @Override

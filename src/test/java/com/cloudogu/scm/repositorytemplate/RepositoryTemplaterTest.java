@@ -167,7 +167,6 @@ class RepositoryTemplaterTest {
     verify(context, times(3)).create(anyString());
   }
 
-
   @Test
   void shouldCopyAndTemplateDirectoryRecursively() throws IOException {
     mockTemplateService("com/cloudogu/scm/repositorytemplate/template_only_dir.yml");
@@ -207,6 +206,7 @@ class RepositoryTemplaterTest {
   private void mockNestedBrowseCommandBuilder(String path, FileObject object) throws IOException {
     BrowseCommandBuilder mockedBrowseCommandBuilder = mock(BrowseCommandBuilder.class, Answers.RETURNS_SELF);
     lenient().doReturn(mockedBrowseCommandBuilder).when(browseCommandBuilder).setPath(path);
+    object.setName("template.yml");
     lenient().doReturn(new BrowserResult("1", object)).when(mockedBrowseCommandBuilder).getBrowserResult();
   }
 
@@ -231,6 +231,9 @@ class RepositoryTemplaterTest {
     when(serviceFactory.create(TEMPLATE_REPOSITORY)).thenReturn(templateRepositoryService);
     when(templateRepositoryService.getBrowseCommand()).thenReturn(browseCommandBuilder);
     lenient().when(browseCommandBuilder.getBrowserResult()).thenReturn(browserResult);
+    FileObject file = new FileObject();
+    file.setName("template.yml");
+    lenient().when(browserResult.getFile()).thenReturn(file);
     lenient().when(serviceFactory.create(TARGET_REPOSITORY)).thenReturn(targetRepositoryService);
     lenient().when(catCommandBuilder.getStream(any())).thenReturn(content);
     lenient().when(templateRepositoryService.getCatCommand()).thenReturn(catCommandBuilder);

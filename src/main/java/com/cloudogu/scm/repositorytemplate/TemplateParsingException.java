@@ -26,18 +26,30 @@ package com.cloudogu.scm.repositorytemplate;
 import sonia.scm.ContextEntry;
 import sonia.scm.ExceptionWithContext;
 
-import java.util.List;
+import java.util.Optional;
 
 public class TemplateParsingException extends ExceptionWithContext {
 
   private static final String CODE = "ErSA4q8eJ1";
 
-  public TemplateParsingException(List<ContextEntry> context, String message) {
-    super(context, message);
+  public TemplateParsingException(String file) {
+    super(
+      ContextEntry.ContextBuilder.entity(RepositoryTemplate.class, file).build(),
+      "repository template invalid -> could not parse " + file
+    );
   }
 
-  public TemplateParsingException(List<ContextEntry> context, String message, Exception exception) {
-    super(context, message, exception);
+  public TemplateParsingException(String file, Exception exception) {
+    super(
+      ContextEntry.ContextBuilder.entity(RepositoryTemplate.class, file).build(),
+      "repository template invalid -> could not parse " + file,
+      exception
+    );
+  }
+
+  @Override
+  public Optional<String> getUrl() {
+    return Optional.of("https://scm-manager.org/plugins/scm-repository-template-plugin/docs/1.0.x/en/usage/");
   }
 
   @Override

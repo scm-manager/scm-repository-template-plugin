@@ -24,6 +24,7 @@
 package com.cloudogu.scm.repositorytemplate;
 
 import sonia.scm.NotFoundException;
+import sonia.scm.repository.BrowserResult;
 import sonia.scm.repository.api.RepositoryService;
 
 import java.io.IOException;
@@ -49,7 +50,8 @@ public class RepositoryTemplateFinder {
 
   private static boolean fileExists(RepositoryService repositoryService, String templateYml) throws IOException {
     try {
-      return repositoryService.getBrowseCommand().setPath(templateYml).getBrowserResult() != null;
+      BrowserResult browserResult = repositoryService.getBrowseCommand().setPath(templateYml).getBrowserResult();
+      return browserResult != null && browserResult.getFile() != null && templateYml.equals(browserResult.getFile().getName());
     } catch (NotFoundException e) {
       return false;
     }
