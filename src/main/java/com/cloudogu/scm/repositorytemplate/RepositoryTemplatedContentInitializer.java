@@ -23,7 +23,6 @@
  */
 package com.cloudogu.scm.repositorytemplate;
 
-import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import sonia.scm.plugin.Extension;
@@ -49,9 +48,9 @@ public class RepositoryTemplatedContentInitializer implements RepositoryContentI
 
   @Override
   public void initialize(InitializerContext context) {
-    Optional<TemplateContext> repositoryModel = context.getCreationContext("templateId", TemplateContext.class);
-    if (repositoryModel.isPresent()) {
-      String[] splitRepository = repositoryModel.get().getNamespaceAndName().split("/");
+    Optional<TemplateContext> templateContext = context.getCreationContext("templateId", TemplateContext.class);
+    if (templateContext.isPresent()) {
+      String[] splitRepository = templateContext.get().getTemplateId().split("/");
       Repository templateRepository = repositoryManager.get(new NamespaceAndName(splitRepository[0], splitRepository[1]));
       templater.render(templateRepository, context);
     }
@@ -59,8 +58,7 @@ public class RepositoryTemplatedContentInitializer implements RepositoryContentI
 
   @Getter
   @AllArgsConstructor
-  static
-  class TemplateContext {
-    private String namespaceAndName;
+  static class TemplateContext {
+    private final String templateId;
   }
 }

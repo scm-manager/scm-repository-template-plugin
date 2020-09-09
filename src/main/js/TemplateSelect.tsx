@@ -31,7 +31,7 @@ type Props = {
 };
 
 type RepositoryTemplate = {
-  namespaceAndName: string;
+  templateRepository: string;
 }
 
 const TemplateSelect: FC<Props> = ({ setCreationContextEntry, indexResources }) => {
@@ -58,7 +58,7 @@ const TemplateSelect: FC<Props> = ({ setCreationContextEntry, indexResources }) 
         .get(repositoryTemplatesLink)
         .then(response => response.json())
         .then(response =>
-          response?._embedded?.templates?.map((template: RepositoryTemplate) => template.namespaceAndName)
+          response?._embedded?.templates?.map((template: RepositoryTemplate) => template.templateRepository)
         )
         .then(setOptions)
         .catch(setError)

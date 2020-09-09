@@ -6,7 +6,8 @@
       "readme": "Nur Readme Datei"
     },
     "info": {
-      "helpText": "Sie haben Fragen zur Template Datei? Hier geht's zur Dokumentation:"
+      "helpText": "Sie haben Fragen zur Template Datei? Hier geht's zur",
+      "documentation": "Dokumentation"
     }
   },
   "errors": {

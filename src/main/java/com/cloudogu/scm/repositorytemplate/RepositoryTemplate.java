@@ -33,12 +33,12 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class RepositoryTemplate {
-  private String namespaceAndName;
+  private String templateRepository;
   private String engine;
   private String encoding;
   private List<RepositoryTemplateFile> files;
 
-  public RepositoryTemplate(String namespaceAndName) {
-    this.namespaceAndName = namespaceAndName;
+  public RepositoryTemplate(String templateRepository) {
+    this.templateRepository = templateRepository;
   }
 }

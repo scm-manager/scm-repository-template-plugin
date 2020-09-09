@@ -36,6 +36,10 @@ public class TemplateParsingException extends ExceptionWithContext {
     super(context, message);
   }
 
+  public TemplateParsingException(List<ContextEntry> context, String message, Exception exception) {
+    super(context, message, exception);
+  }
+
   @Override
   public String getCode() {
     return CODE;

@@ -29,10 +29,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
 @Setter
-@NoArgsConstructor
+@Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class RepositoryTemplateDto extends HalRepresentation {
-  private String namespaceAndName;
+  private String templateRepository;
 }

@@ -82,6 +82,6 @@ class RepositoryTemplateResourceTest {
 
     verify(collector).collect();
     assertThat(response.getStatus()).isEqualTo(200);
-    assertThat(response.getContentAsString()).contains("\"namespaceAndName\":\"" + namespaceAndName+ "\"");
+    assertThat(response.getContentAsString()).contains("\"templateRepository\":\"" + namespaceAndName+ "\"");
   }
 }

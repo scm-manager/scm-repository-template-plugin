@@ -150,7 +150,7 @@ class RepositoryTemplateCollectorTest {
 
     assertThat(templates).hasSize(1);
     RepositoryTemplate template = templates.iterator().next();
-    assertThat(template.getNamespaceAndName()).isEqualTo(REPOSITORY.getNamespaceAndName().toString());
+    assertThat(template.getTemplateRepository()).isEqualTo(REPOSITORY.getNamespaceAndName().toString());
   }
 
   @Test
@@ -181,7 +181,7 @@ class RepositoryTemplateCollectorTest {
     assertThat(template.getEngine()).isEqualTo("hitchhiker");
     assertThat(template.getFiles().get(0).getPath()).isEqualTo(".gitignore");
     assertThat(template.getFiles().get(1).getPath()).isEqualTo("Jenkinsfile");
-    assertThat(template.getNamespaceAndName()).isEqualTo(REPOSITORY.getNamespaceAndName().toString());
+    assertThat(template.getTemplateRepository()).isEqualTo(REPOSITORY.getNamespaceAndName().toString());
   }
 
   @Test
@@ -262,7 +262,7 @@ class RepositoryTemplateCollectorTest {
 
   private List<RepositoryTemplate> createRepoTemplateList(String engine, RepositoryTemplateFile... templateFiles) {
     RepositoryTemplate repositoryTemplate = new RepositoryTemplate();
-    repositoryTemplate.setNamespaceAndName(REPOSITORY.getNamespaceAndName().toString());
+    repositoryTemplate.setTemplateRepository(REPOSITORY.getNamespaceAndName().toString());
     repositoryTemplate.setEngine(engine);
     repositoryTemplate.setFiles(Arrays.asList(templateFiles.clone()));
     List<RepositoryTemplate> repositoryTemplates = new ArrayList<>();

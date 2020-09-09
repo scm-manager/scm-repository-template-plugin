@@ -125,7 +125,7 @@ public class RepositoryTemplateCollector {
 
   private void filterTemplatesByUserPermission(Collection<RepositoryTemplate> repositoryTemplates) {
     repositoryTemplates.removeIf(repositoryTemplate -> {
-      String[] splittedNamespaceAndName = repositoryTemplate.getNamespaceAndName().split("/");
+      String[] splittedNamespaceAndName = repositoryTemplate.getTemplateRepository().split("/");
       Repository repository = repositoryManager.get(new NamespaceAndName(splittedNamespaceAndName[0], splittedNamespaceAndName[1]));
       return !RepositoryPermissions.read(repository).isPermitted();
     });
@@ -139,7 +139,7 @@ public class RepositoryTemplateCollector {
           repositoryTemplates.add(new RepositoryTemplate(repository.getNamespaceAndName().toString()));
         }
       } catch (IOException e) {
-        LOG.error("could not read template file in repository", e);
+        LOG.error("could not read template file in repository" + repository.getNamespaceAndName().toString(), e);
       }
     }
   }

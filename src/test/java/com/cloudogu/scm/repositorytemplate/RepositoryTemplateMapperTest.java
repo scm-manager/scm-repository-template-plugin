@@ -39,11 +39,10 @@ class RepositoryTemplateMapperTest {
   @Test
   void shouldMapRepoTemplateToDto() {
     Repository repository = RepositoryTestData.create42Puzzle();
-    RepositoryTemplate repositoryTemplate = new RepositoryTemplate();
-    repositoryTemplate.setNamespaceAndName(repository.getNamespaceAndName().toString());
+    RepositoryTemplate repositoryTemplate = new RepositoryTemplate(repository.getNamespaceAndName().toString());
 
     RepositoryTemplateDto dto = mapper.map(repositoryTemplate);
 
-    assertThat(dto.getNamespaceAndName()).isEqualTo(repository.getNamespaceAndName().toString());
+    assertThat(dto.getTemplateRepository()).isEqualTo(repository.getNamespaceAndName().toString());
   }
 }

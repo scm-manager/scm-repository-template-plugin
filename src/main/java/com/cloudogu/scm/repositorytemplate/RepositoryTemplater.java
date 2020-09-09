@@ -25,14 +25,17 @@ package com.cloudogu.scm.repositorytemplate;
 
 import com.google.common.base.Strings;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
+import org.yaml.snakeyaml.error.YAMLException;
 import sonia.scm.ContextEntry;
 import sonia.scm.NotFoundException;
 import sonia.scm.repository.BrowserResult;
 import sonia.scm.repository.FileObject;
+import sonia.scm.repository.InternalRepositoryException;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryContentInitializer.InitializerContext;
 import sonia.scm.repository.api.RepositoryService;
@@ -75,7 +78,11 @@ public class RepositoryTemplater {
     try (RepositoryService templateService = repositoryServiceFactory.create(template)) {
       render(templateService);
     } catch (IOException e) {
-      LOG.error("could not use template on new repository", e);
+      throw new InternalRepositoryException(
+        ContextEntry.ContextBuilder.entity(Repository.class, template.getId()),
+        "could not read files from template repository",
+        e
+      );
     }
   }
 
@@ -148,7 +155,7 @@ public class RepositoryTemplater {
     }
     try (InputStream templateYml = repositoryService.getCatCommand().getStream(templateFile.get())) {
       RepositoryTemplate repositoryTemplate = unmarshallRepositoryTemplate(templateFile.get(), templateYml);
-      repositoryTemplate.setNamespaceAndName(repositoryService.getRepository().getNamespaceAndName().toString());
+      repositoryTemplate.setTemplateRepository(repositoryService.getRepository().getNamespaceAndName().toString());
       if (repositoryTemplate.getFiles() == null) {
         repositoryTemplate.setFiles(Collections.emptyList());
       }
@@ -157,19 +164,23 @@ public class RepositoryTemplater {
   }
 
   private RepositoryTemplate unmarshallRepositoryTemplate(String templateFile, InputStream templateYml) {
-    RepositoryTemplate repositoryTemplate = yaml.loadAs(templateYml, RepositoryTemplate.class);
-    if (repositoryTemplate == null) {
-      throwTemplateParsingException(templateFile);
+
+    try {
+      RepositoryTemplate repositoryTemplate = yaml.loadAs(templateYml, RepositoryTemplate.class);
+      if (repositoryTemplate == null) {
+        throw new TemplateParsingException(
+          ContextEntry.ContextBuilder.entity(RepositoryTemplate.class, templateFile).build(),
+          "repository template invalid -> could not parse " + templateFile
+        );
+      }
+      return repositoryTemplate;
+    } catch (YAMLException ex) {
+      throw new TemplateParsingException(
+        ContextEntry.ContextBuilder.entity(RepositoryTemplate.class, templateFile).build(),
+        "repository template invalid -> could not parse " + templateFile,
+        ex
+      );
     }
-    return repositoryTemplate;
-
-  }
-
-  private void throwTemplateParsingException(String templateFile) {
-    throw new TemplateParsingException(
-      ContextEntry.ContextBuilder.entity(RepositoryTemplate.class, templateFile).build(),
-      "repository template invalid -> could not parse " + templateFile
-    );
   }
 
   static class TemplateFilter {
@@ -201,6 +212,7 @@ public class RepositoryTemplater {
     }
   }
 
+  @Getter
   @AllArgsConstructor
   static class TemplateFilterModel {
     private final Repository repository;
