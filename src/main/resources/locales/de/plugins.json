@@ -4,6 +4,9 @@
     "templateHelpText": "Das Repository, welches als Vorlage verwendet werden soll.",
     "template": {
       "readme": "Nur Readme Datei"
+    },
+    "info": {
+      "helpText": "Sie haben Fragen zur Template Datei? Hier geht's zur Dokumentation:"
     }
   },
   "errors": {
