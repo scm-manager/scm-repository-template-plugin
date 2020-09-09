@@ -179,8 +179,8 @@ class RepositoryTemplateCollectorTest {
     assertThat(templates).hasSize(1);
     RepositoryTemplate template = templates.iterator().next();
     assertThat(template.getEngine()).isEqualTo("hitchhiker");
-    assertThat(template.getFiles().get(0).getName()).isEqualTo(".gitignore");
-    assertThat(template.getFiles().get(1).getName()).isEqualTo("Jenkinsfile");
+    assertThat(template.getFiles().get(0).getPath()).isEqualTo(".gitignore");
+    assertThat(template.getFiles().get(1).getPath()).isEqualTo("Jenkinsfile");
     assertThat(template.getNamespaceAndName()).isEqualTo(REPOSITORY.getNamespaceAndName().toString());
   }
 

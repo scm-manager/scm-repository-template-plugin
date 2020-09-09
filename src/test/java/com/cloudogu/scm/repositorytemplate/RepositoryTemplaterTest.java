@@ -102,10 +102,10 @@ class RepositoryTemplaterTest {
   }
 
   @Test
-  void shouldThrowYamlExceptionIfTemplateFileCouldNotBeParsed() throws IOException {
+  void shouldThrowTemplateParsingExceptionIfTemplateFileCouldNotBeParsed() throws IOException {
     mockTemplateService("com/cloudogu/scm/repositorytemplate/empty_template.yml");
 
-    assertThrows(YAMLException.class, () -> repositoryTemplater.render(TEMPLATE_REPOSITORY, context));
+    assertThrows(TemplateParsingException.class, () -> repositoryTemplater.render(TEMPLATE_REPOSITORY, context));
   }
 
   @Test

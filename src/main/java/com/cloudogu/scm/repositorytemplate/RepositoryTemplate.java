@@ -35,6 +35,7 @@ import java.util.List;
 public class RepositoryTemplate {
   private String namespaceAndName;
   private String engine;
+  private String encoding;
   private List<RepositoryTemplateFile> files;
 
   public RepositoryTemplate(String namespaceAndName) {

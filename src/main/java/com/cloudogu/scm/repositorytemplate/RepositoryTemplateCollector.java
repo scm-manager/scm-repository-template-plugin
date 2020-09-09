@@ -114,15 +114,13 @@ public class RepositoryTemplateCollector {
   }
 
   private boolean wasTemplateFileEffected(PostReceiveRepositoryHookEvent event, RepositoryService repositoryService) throws IOException {
-    boolean clearCache = false;
     for (Changeset changeset : event.getContext().getChangesetProvider().getChangesets()) {
       List<String> changedFiles = repositoryService.getModificationsCommand().revision(changeset.getId()).getModifications().getEffectedPaths();
-      clearCache = changedFiles.contains(TEMPLATE_YML) || changedFiles.contains(TEMPLATE_YAML);
-      if (clearCache) {
-        break;
+      if (changedFiles.contains(TEMPLATE_YML) || changedFiles.contains(TEMPLATE_YAML)) {
+        return true;
       }
     }
-    return clearCache;
+    return false;
   }
 
   private void filterTemplatesByUserPermission(Collection<RepositoryTemplate> repositoryTemplates) {

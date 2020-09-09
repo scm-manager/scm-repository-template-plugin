@@ -5,5 +5,15 @@
     "template": {
       "readme": "Nur Readme Datei"
     }
+  },
+  "errors": {
+    "ErSA4q8eJ1": {
+      "displayName": "Vorlagendefinition fehlerhaft",
+      "description": "Die template yaml scheint fehlerhaft zu sein. Bitte überprüfen Sie die definierten Felder."
+    },
+    "4JSA4ucU51": {
+      "displayName": "Templating fehlgeschlagen",
+      "description": "Das Templating der Datei konnte nicht durchgeführt werden."
+    }
   }
 }

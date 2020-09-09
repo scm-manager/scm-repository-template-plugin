@@ -23,8 +23,6 @@
  */
 package com.cloudogu.scm.repositorytemplate;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,9 +34,9 @@ import sonia.scm.repository.RepositoryContentInitializer;
 import sonia.scm.repository.RepositoryManager;
 import sonia.scm.repository.RepositoryTestData;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
+import static com.cloudogu.scm.repositorytemplate.RepositoryTemplatedContentInitializer.TemplateContext;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,10 +57,8 @@ class RepositoryTemplatedContentInitializerTest {
 
   @Test
   void shouldInitializeRepository() {
-    Map<String, JsonNode> creationContext = new HashMap<>();
-    TextNode templateId = new TextNode("hitchhiker/heartOfGold");
-    creationContext.put("templateId", templateId);
-    when(context.getCreationContext()).thenReturn(creationContext);
+    TemplateContext templateContext = new TemplateContext("hitchhiker/heartOfGold");
+    when(context.getCreationContext("templateId", TemplateContext.class)).thenReturn(Optional.of(templateContext));
     when(repositoryManager.get(new NamespaceAndName("hitchhiker", "heartOfGold"))).thenReturn(TEMPLATE_REPOSITORY);
 
     initializer.initialize(context);

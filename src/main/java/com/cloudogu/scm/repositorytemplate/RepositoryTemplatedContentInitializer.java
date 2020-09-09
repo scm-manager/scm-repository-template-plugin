@@ -24,6 +24,8 @@
 package com.cloudogu.scm.repositorytemplate;
 
 import com.fasterxml.jackson.databind.node.TextNode;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import sonia.scm.plugin.Extension;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.Repository;
@@ -47,17 +49,18 @@ public class RepositoryTemplatedContentInitializer implements RepositoryContentI
 
   @Override
   public void initialize(InitializerContext context) {
-    TextNode repositoryModel = (TextNode) context.getCreationContext().get("templateId");
-    if (repositoryModel != null) {
-      String[] splitRepository = repositoryModel.asText().split("/");
+    Optional<TemplateContext> repositoryModel = context.getCreationContext("templateId", TemplateContext.class);
+    if (repositoryModel.isPresent()) {
+      String[] splitRepository = repositoryModel.get().getNamespaceAndName().split("/");
       Repository templateRepository = repositoryManager.get(new NamespaceAndName(splitRepository[0], splitRepository[1]));
       templater.render(templateRepository, context);
     }
   }
 
-  @Override
-  public Optional<Class<?>> getType() {
-    // We will need this later if we add more fields to the templateFilterModel
-    return Optional.empty();
+  @Getter
+  @AllArgsConstructor
+  static
+  class TemplateContext {
+    private String namespaceAndName;
   }
 }

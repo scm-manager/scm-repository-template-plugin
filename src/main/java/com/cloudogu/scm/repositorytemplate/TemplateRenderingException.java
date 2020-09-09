@@ -23,16 +23,21 @@
  */
 package com.cloudogu.scm.repositorytemplate;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import sonia.scm.ContextEntry;
+import sonia.scm.ExceptionWithContext;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-public class RepositoryTemplateFile {
-  private String path;
-  private boolean filtered;
+import java.util.List;
+
+public class TemplateRenderingException extends ExceptionWithContext {
+
+  private static final String CODE = "4JSA4ucU51";
+
+  public TemplateRenderingException(List<ContextEntry> context, String message, Exception cause) {
+    super(context, message, cause);
+  }
+
+  @Override
+  public String getCode() {
+    return CODE;
+  }
 }

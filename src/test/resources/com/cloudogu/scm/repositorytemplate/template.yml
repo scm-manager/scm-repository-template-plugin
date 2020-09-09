@@ -24,9 +24,10 @@
 
 engine: mustache
 files:
-  - name: README.md
+  - path: README.md
     filtered: true
-  - name: Jenkinsfile
+  - path: Jenkinsfile
     filtered: false
-  - name: src/*
+  - path: src/*
     filtered: false
+encoding: UTF-8

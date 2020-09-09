@@ -5,5 +5,15 @@
     "template": {
       "readme": "Only README.md"
     }
+  },
+  "errors": {
+    "ErSA4q8eJ1": {
+      "displayName": "Template definition parsing failed",
+      "description": "The template yaml could not be parsed. Please check your template definition."
+    },
+    "4JSA4ucU51": {
+      "displayName": "Templating failed",
+      "description": "The file could not be templated."
+    }
   }
 }

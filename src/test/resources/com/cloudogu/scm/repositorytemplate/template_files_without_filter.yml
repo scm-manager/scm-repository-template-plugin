@@ -24,5 +24,5 @@
 
 engine: mustache
 files:
-  - name: Jenkinsfile
+  - path: Jenkinsfile
     filtered: false

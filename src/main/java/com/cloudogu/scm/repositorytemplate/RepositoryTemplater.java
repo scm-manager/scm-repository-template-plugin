@@ -23,16 +23,16 @@
  */
 package com.cloudogu.scm.repositorytemplate;
 
+import com.google.common.base.Strings;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
-import org.yaml.snakeyaml.error.YAMLException;
 import sonia.scm.ContextEntry;
 import sonia.scm.NotFoundException;
 import sonia.scm.repository.BrowserResult;
 import sonia.scm.repository.FileObject;
-import sonia.scm.repository.InternalRepositoryException;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryContentInitializer.InitializerContext;
 import sonia.scm.repository.api.RepositoryService;
@@ -49,7 +49,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -72,9 +72,7 @@ public class RepositoryTemplater {
 
   public void render(Repository template, InitializerContext context) {
     this.context = context;
-    try (
-      RepositoryService templateService = repositoryServiceFactory.create(template);
-    ) {
+    try (RepositoryService templateService = repositoryServiceFactory.create(template)) {
       render(templateService);
     } catch (IOException e) {
       LOG.error("could not use template on new repository", e);
@@ -84,12 +82,22 @@ public class RepositoryTemplater {
   private void render(RepositoryService templateService) throws IOException {
     RepositoryTemplate repositoryTemplate = parseTemplateConfig(templateService);
     TemplateEngine engine = setupTemplateEngine(repositoryTemplate);
-    TemplateFilter templateFilter = new TemplateFilter(context, engine, templateService.getRepository());
+    String encoding = !Strings.isNullOrEmpty(repositoryTemplate.getEncoding()) ? repositoryTemplate.getEncoding() : "UTF-8";
+    TemplateFilter templateFilter = new TemplateFilter(new TemplateFilterModel(context.getRepository()), engine, encoding);
 
     for (RepositoryTemplateFile templateFile : repositoryTemplate.getFiles()) {
-      BrowserResult result = templateService.getBrowseCommand().setPath(templateFile.getName()).setRecursive(true).getBrowserResult();
+      String filePath = removeLeadingSlashOnFilepath(templateFile);
+      BrowserResult result = templateService.getBrowseCommand().setPath(filePath).setRecursive(true).getBrowserResult();
       copyFileRecursively(templateService, templateFilter, templateFile, result.getFile());
     }
+  }
+
+  private String removeLeadingSlashOnFilepath(RepositoryTemplateFile templateFile) {
+    String filePath = templateFile.getPath();
+    if (templateFile.getPath().startsWith("/")) {
+      filePath = templateFile.getPath().substring(1);
+    }
+    return filePath;
   }
 
   private void copyFileRecursively(RepositoryService templateService, TemplateFilter filter, RepositoryTemplateFile templateFile, FileObject file) throws IOException {
@@ -151,37 +159,50 @@ public class RepositoryTemplater {
   private RepositoryTemplate unmarshallRepositoryTemplate(String templateFile, InputStream templateYml) {
     RepositoryTemplate repositoryTemplate = yaml.loadAs(templateYml, RepositoryTemplate.class);
     if (repositoryTemplate == null) {
-      throw new YAMLException("repository template invalid -> could not parse " + templateFile);
+      throwTemplateParsingException(templateFile);
     }
     return repositoryTemplate;
+
+  }
+
+  private void throwTemplateParsingException(String templateFile) {
+    throw new TemplateParsingException(
+      ContextEntry.ContextBuilder.entity(RepositoryTemplate.class, templateFile).build(),
+      "repository template invalid -> could not parse " + templateFile
+    );
   }
 
   static class TemplateFilter {
-    private final InitializerContext context;
+    private final TemplateFilterModel model;
     private final TemplateEngine engine;
-    private final Repository templateRepository;
+    private final String encoding;
 
-    private TemplateFilter(InitializerContext context, TemplateEngine engine, Repository templateRepository) {
-      this.context = context;
+    private TemplateFilter(TemplateFilterModel model, TemplateEngine engine, String encoding) {
+      this.model = model;
       this.engine = engine;
-      this.templateRepository = templateRepository;
+      this.encoding = encoding;
     }
 
     private ByteArrayOutputStream filter(InputStream inputStream, String filePath) {
       try (Reader content = new InputStreamReader(inputStream)) {
         Template template = engine.getTemplate(filePath, content);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        OutputStreamWriter writer = new OutputStreamWriter(baos, StandardCharsets.UTF_8);
-        template.execute(writer, context.getRepository());
+        OutputStreamWriter writer = new OutputStreamWriter(baos, Charset.forName(encoding));
+        template.execute(writer, model);
         writer.flush();
         return baos;
       } catch (IOException ex) {
-        throw new InternalRepositoryException(
-          ContextEntry.ContextBuilder.entity(Repository.class, templateRepository.getId()),
-          "could not read file from repository: " + filePath,
+        throw new TemplateRenderingException(
+          ContextEntry.ContextBuilder.entity(RepositoryTemplateFile.class, filePath).build(),
+          "could not template " + filePath,
           ex
         );
       }
     }
+  }
+
+  @AllArgsConstructor
+  static class TemplateFilterModel {
+    private final Repository repository;
   }
 }
