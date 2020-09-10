@@ -3,7 +3,7 @@
     "templates": "Templates",
     "templateHelpText": "The Repository, that should be used as a template.",
     "template": {
-      "readme": "Only README.md"
+      "default": "Default initialization"
     },
     "info": {
       "helpText": "You need help with your template file? Have a look for the official",

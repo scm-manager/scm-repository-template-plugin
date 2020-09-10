@@ -3,7 +3,7 @@
     "templates": "Vorlagen",
     "templateHelpText": "Das Repository, welches als Vorlage verwendet werden soll.",
     "template": {
-      "readme": "Nur Readme Datei"
+      "default": "Standardinitialisierung"
     },
     "info": {
       "helpText": "Sie haben Fragen zur Template Datei? Hier geht's zur",

@@ -82,7 +82,7 @@ const TemplateSelect: FC<Props> = ({ setCreationContextEntry, indexResources }) 
   }
 
   const optionElements: SelectItem[] = options.map(option => ({ value: option, label: option }));
-  optionElements.unshift({ value: "", label: t("scm-repository-template-plugin.template.readme") });
+  optionElements.unshift({ value: "", label: t("scm-repository-template-plugin.template.default") });
 
   return (
     <Select
