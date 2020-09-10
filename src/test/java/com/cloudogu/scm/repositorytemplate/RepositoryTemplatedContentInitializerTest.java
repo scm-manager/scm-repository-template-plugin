@@ -57,7 +57,8 @@ class RepositoryTemplatedContentInitializerTest {
 
   @Test
   void shouldInitializeRepository() {
-    TemplateContext templateContext = new TemplateContext("hitchhiker/heartOfGold");
+    TemplateContext templateContext = new TemplateContext();
+    templateContext.setTemplateId("hitchhiker/heartOfGold");
     when(context.getEntry("templateId", TemplateContext.class)).thenReturn(Optional.of(templateContext));
     when(repositoryManager.get(new NamespaceAndName("hitchhiker", "heartOfGold"))).thenReturn(TEMPLATE_REPOSITORY);
 
