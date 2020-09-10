@@ -21,10 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.cloudogu.scm.repositorytemplate;
 
-import { binder } from "@scm-manager/ui-extensions";
-import TemplateSelect from "./TemplateSelect";
-import TemplateInfo from "./TemplateInfo";
+import com.google.inject.AbstractModule;
+import org.mapstruct.factory.Mappers;
+import sonia.scm.plugin.Extension;
 
-binder.bind("repos.create.initialize", TemplateSelect);
-binder.bind("editor.file.hints", TemplateInfo);
+@Extension
+public class MapperModule extends AbstractModule {
+
+  @Override
+  protected void configure() {
+    bind(RepositoryTemplateMapper.class).to(Mappers.getMapper(RepositoryTemplateMapper.class).getClass());
+  }
+}

@@ -21,10 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.cloudogu.scm.repositorytemplate;
 
-import { binder } from "@scm-manager/ui-extensions";
-import TemplateSelect from "./TemplateSelect";
-import TemplateInfo from "./TemplateInfo";
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-binder.bind("repos.create.initialize", TemplateSelect);
-binder.bind("editor.file.hints", TemplateInfo);
+@Mapper
+public abstract class RepositoryTemplateMapper {
+
+  @Mapping(target = "attributes", ignore = true) // We do not map HAL attributes
+  public abstract RepositoryTemplateDto map(RepositoryTemplate repositoryTemplate);
+}

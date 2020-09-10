@@ -21,10 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.cloudogu.scm.repositorytemplate;
 
-import { binder } from "@scm-manager/ui-extensions";
-import TemplateSelect from "./TemplateSelect";
-import TemplateInfo from "./TemplateInfo";
+import de.otto.edison.hal.HalRepresentation;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-binder.bind("repos.create.initialize", TemplateSelect);
-binder.bind("editor.file.hints", TemplateInfo);
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+public class RepositoryTemplateDto extends HalRepresentation {
+  private String templateRepository;
+}

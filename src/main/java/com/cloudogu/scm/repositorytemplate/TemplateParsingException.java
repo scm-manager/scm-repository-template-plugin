@@ -21,10 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.cloudogu.scm.repositorytemplate;
 
-import { binder } from "@scm-manager/ui-extensions";
-import TemplateSelect from "./TemplateSelect";
-import TemplateInfo from "./TemplateInfo";
+import sonia.scm.ContextEntry;
+import sonia.scm.ExceptionWithContext;
 
-binder.bind("repos.create.initialize", TemplateSelect);
-binder.bind("editor.file.hints", TemplateInfo);
+import java.util.Optional;
+
+public class TemplateParsingException extends ExceptionWithContext {
+
+  private static final String CODE = "ErSA4q8eJ1";
+
+  public TemplateParsingException(String file) {
+    super(
+      ContextEntry.ContextBuilder.entity(RepositoryTemplate.class, file).build(),
+      "repository template invalid -> could not parse " + file
+    );
+  }
+
+  public TemplateParsingException(String file, Exception exception) {
+    super(
+      ContextEntry.ContextBuilder.entity(RepositoryTemplate.class, file).build(),
+      "repository template invalid -> could not parse " + file,
+      exception
+    );
+  }
+
+  @Override
+  public Optional<String> getUrl() {
+    return Optional.of("https://scm-manager.org/plugins/scm-repository-template-plugin/docs/1.0.x/en/usage/");
+  }
+
+  @Override
+  public String getCode() {
+    return CODE;
+  }
+}

@@ -21,10 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import React, { FC } from "react";
+import { Notification } from "@scm-manager/ui-components";
+import { useTranslation } from "react-i18next";
 
-import { binder } from "@scm-manager/ui-extensions";
-import TemplateSelect from "./TemplateSelect";
-import TemplateInfo from "./TemplateInfo";
+type Props = {
+  path?: string;
+};
 
-binder.bind("repos.create.initialize", TemplateSelect);
-binder.bind("editor.file.hints", TemplateInfo);
+const TemplateInfo: FC<Props> = ({ path }) => {
+  const [t, i18n] = useTranslation("plugins");
+
+  const language = i18n.language === "de" ? "de" : "en";
+  const documentationUrl = `https://scm-manager.org/plugins/scm-repository-template-plugin/docs/1.0.x/${language}/usage/`;
+
+  if (path?.includes("template.yml") || path?.includes("template.yaml")) {
+    return (
+      <Notification type="info">
+        {t("scm-repository-template-plugin.info.helpText")}{" "}
+        <a href={documentationUrl} target="_blank">{t("scm-repository-template-plugin.info.documentation")}.</a>
+      </Notification>
+    );
+  }
+  return null;
+};
+
+export default TemplateInfo;

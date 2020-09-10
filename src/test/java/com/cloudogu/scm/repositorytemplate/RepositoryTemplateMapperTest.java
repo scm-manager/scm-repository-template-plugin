@@ -21,10 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.cloudogu.scm.repositorytemplate;
 
-import { binder } from "@scm-manager/ui-extensions";
-import TemplateSelect from "./TemplateSelect";
-import TemplateInfo from "./TemplateInfo";
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import sonia.scm.repository.Repository;
+import sonia.scm.repository.RepositoryTestData;
 
-binder.bind("repos.create.initialize", TemplateSelect);
-binder.bind("editor.file.hints", TemplateInfo);
+import static org.assertj.core.api.Assertions.assertThat;
+
+@ExtendWith(MockitoExtension.class)
+class RepositoryTemplateMapperTest {
+
+  private final RepositoryTemplateMapper mapper = new RepositoryTemplateMapperImpl();
+
+  @Test
+  void shouldMapRepoTemplateToDto() {
+    Repository repository = RepositoryTestData.create42Puzzle();
+    RepositoryTemplate repositoryTemplate = new RepositoryTemplate(repository.getNamespaceAndName().toString());
+
+    RepositoryTemplateDto dto = mapper.map(repositoryTemplate);
+
+    assertThat(dto.getTemplateRepository()).isEqualTo(repository.getNamespaceAndName().toString());
+  }
+}

@@ -32,7 +32,7 @@
   <parent>
     <artifactId>scm-plugins</artifactId>
     <groupId>sonia.scm.plugins</groupId>
-    <version>2.0.0</version>
+    <version>2.5.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>scm-repository-template-plugin</artifactId>
@@ -46,6 +46,28 @@
     <developerConnection>scm:git:https://github.com/scm-manager/scm-repository-template-plugin</developerConnection>
     <url>https://github.com/scm-manager/scm-repository-template-plugin</url>
   </scm>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>1.26</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>io.openapitools.swagger</groupId>
+        <artifactId>swagger-maven-plugin</artifactId>
+        <configuration>
+          <resourcePackages>
+            <resourcePackage>com.cloudogu.scm.repositorytemplate</resourcePackage>
+          </resourcePackages>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
   <repositories>
 

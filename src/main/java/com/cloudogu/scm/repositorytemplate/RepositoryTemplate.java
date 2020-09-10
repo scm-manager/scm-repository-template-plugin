@@ -21,10 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.cloudogu.scm.repositorytemplate;
 
-import { binder } from "@scm-manager/ui-extensions";
-import TemplateSelect from "./TemplateSelect";
-import TemplateInfo from "./TemplateInfo";
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-binder.bind("repos.create.initialize", TemplateSelect);
-binder.bind("editor.file.hints", TemplateInfo);
+import java.util.List;
+
+@Getter
+@Setter
+@NoArgsConstructor
+public class RepositoryTemplate {
+  private String templateRepository;
+  private String engine;
+  private String encoding;
+  private List<RepositoryTemplateFile> files;
+
+  public RepositoryTemplate(String templateRepository) {
+    this.templateRepository = templateRepository;
+  }
+}

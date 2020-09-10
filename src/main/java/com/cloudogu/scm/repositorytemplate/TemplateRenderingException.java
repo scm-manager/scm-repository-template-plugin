@@ -21,11 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.cloudogu.scm.repositorytemplate;
 
-describe("frontend unit tests", () => {
+import sonia.scm.ContextEntry;
+import sonia.scm.ExceptionWithContext;
 
-  it("some test", () => {
-    expect( 21 * 2 ).toBe(42);
-  });
+public class TemplateRenderingException extends ExceptionWithContext {
 
-});
+  private static final String CODE = "4JSA4ucU51";
+
+  public TemplateRenderingException(String filePath, Exception cause) {
+    super(ContextEntry.ContextBuilder.entity(RepositoryTemplateFile.class, filePath).build(),
+      "could not template " + filePath, cause);
+  }
+
+  @Override
+  public String getCode() {
+    return CODE;
+  }
+}
