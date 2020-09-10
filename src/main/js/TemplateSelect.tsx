@@ -43,7 +43,9 @@ const TemplateSelect: FC<Props> = ({ setCreationContextEntry, indexResources }) 
 
   const onSelectionChange = (value: string) => {
     setSelectedOption(value);
-    setCreationContextEntry("templateId", value);
+    setCreationContextEntry("repository-template", {
+      templateId: value
+    });
   };
 
   useEffect(() => {
