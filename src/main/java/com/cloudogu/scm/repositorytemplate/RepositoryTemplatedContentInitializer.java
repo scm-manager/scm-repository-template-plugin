@@ -48,7 +48,7 @@ public class RepositoryTemplatedContentInitializer implements RepositoryContentI
 
   @Override
   public void initialize(InitializerContext context) {
-    Optional<TemplateContext> templateContext = context.oneByType("templateId", TemplateContext.class);
+    Optional<TemplateContext> templateContext = context.getEntry("templateId", TemplateContext.class);
     if (templateContext.isPresent()) {
       String[] splitRepository = templateContext.get().getTemplateId().split("/");
       Repository templateRepository = repositoryManager.get(new NamespaceAndName(splitRepository[0], splitRepository[1]));
