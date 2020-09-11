@@ -51,7 +51,10 @@ public class RepositoryTemplateFinder {
   private static boolean fileExists(RepositoryService repositoryService, String templateYml) throws IOException {
     try {
       BrowserResult browserResult = repositoryService.getBrowseCommand().setPath(templateYml).getBrowserResult();
-      return browserResult != null && browserResult.getFile() != null && templateYml.equals(browserResult.getFile().getName());
+      return browserResult != null
+        && browserResult.getFile() != null
+        && !browserResult.getFile().isDirectory() &&
+        templateYml.equals(browserResult.getFile().getName());
     } catch (NotFoundException e) {
       return false;
     }
