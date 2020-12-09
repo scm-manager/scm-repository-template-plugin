@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.cloudogu.scm.repositorytemplate.RepositoryTemplateFinder.TEMPLATE_YAML;
 import static com.cloudogu.scm.repositorytemplate.RepositoryTemplateFinder.TEMPLATE_YML;
@@ -126,8 +127,11 @@ public class RepositoryTemplateCollector {
   private void filterTemplatesByUserPermission(Collection<RepositoryTemplate> repositoryTemplates) {
     repositoryTemplates.removeIf(repositoryTemplate -> {
       String[] splittedNamespaceAndName = repositoryTemplate.getTemplateRepository().split("/");
-      Repository repository = repositoryManager.get(new NamespaceAndName(splittedNamespaceAndName[0], splittedNamespaceAndName[1]));
-      return !RepositoryPermissions.read(repository).isPermitted();
+      AtomicReference<Repository> repository = new AtomicReference<>();
+        administrationContext.runAsAdmin(
+          () -> repository.set(repositoryManager.get(new NamespaceAndName(splittedNamespaceAndName[0], splittedNamespaceAndName[1])))
+        );
+      return !RepositoryPermissions.read(repository.get()).isPermitted();
     });
   }
 

@@ -186,6 +186,23 @@ class RepositoryTemplateCollectorTest {
   }
 
   @Test
+  void shouldNotCollectRepositoryTemplatesFromCacheForUserWithoutReadPermission() {
+    when(subject.isPermitted("repository:read:" + REPOSITORY.getId())).thenReturn(false);
+    when(repositoryManager.get(new NamespaceAndName(REPOSITORY.getNamespace(), REPOSITORY.getName()))).thenReturn(REPOSITORY);
+
+    List<RepositoryTemplate> repositoryTemplates = createRepoTemplateList(
+      "hitchhiker",
+      new RepositoryTemplateFile(".gitignore", false),
+      new RepositoryTemplateFile("Jenkinsfile", true)
+    );
+    cacheManager.getCache(CACHE_NAME).put("templates", repositoryTemplates);
+
+    Collection<RepositoryTemplate> templates = collector.collect();
+
+    assertThat(templates).isEmpty();
+  }
+
+  @Test
   void shouldNotCollectRepositoryTemplatesFromCacheWithoutPermission() {
     List<RepositoryTemplate> repositoryTemplates =
       createRepoTemplateList("hitchhiker", new RepositoryTemplateFile(".gitignore", false));
