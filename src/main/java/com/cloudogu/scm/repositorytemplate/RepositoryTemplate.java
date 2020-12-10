@@ -26,6 +26,8 @@ package com.cloudogu.scm.repositorytemplate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import sonia.scm.repository.NamespaceAndName;
+import sonia.scm.repository.Repository;
 
 import java.util.List;
 
@@ -33,12 +35,27 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class RepositoryTemplate {
-  private String templateRepository;
+  private NamespaceAndName namespaceAndName;
+  private String repositoryId;
   private String engine;
   private String encoding;
   private List<RepositoryTemplateFile> files;
 
-  public RepositoryTemplate(String templateRepository) {
-    this.templateRepository = templateRepository;
+  public RepositoryTemplate(Repository repository) {
+    this(repository.getNamespaceAndName(), repository.getId());
+  }
+
+  private RepositoryTemplate(NamespaceAndName namespaceAndName, String repositoryId) {
+    this.namespaceAndName = namespaceAndName;
+    this.repositoryId = repositoryId;
+  }
+
+  public String getTemplateRepository() {
+    return namespaceAndName.toString();
+  }
+
+  void setRepository(Repository repository) {
+    this.namespaceAndName = repository.getNamespaceAndName();
+    this.repositoryId = repository.getId();
   }
 }

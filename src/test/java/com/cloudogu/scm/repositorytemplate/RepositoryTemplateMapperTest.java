@@ -39,7 +39,7 @@ class RepositoryTemplateMapperTest {
   @Test
   void shouldMapRepoTemplateToDto() {
     Repository repository = RepositoryTestData.create42Puzzle();
-    RepositoryTemplate repositoryTemplate = new RepositoryTemplate(repository.getNamespaceAndName().toString());
+    RepositoryTemplate repositoryTemplate = new RepositoryTemplate(repository);
 
     RepositoryTemplateDto dto = mapper.map(repositoryTemplate);
 

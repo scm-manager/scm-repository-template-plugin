@@ -30,7 +30,6 @@ import sonia.scm.HandlerEventType;
 import sonia.scm.cache.Cache;
 import sonia.scm.cache.CacheManager;
 import sonia.scm.repository.Changeset;
-import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.PostReceiveRepositoryHookEvent;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryEvent;
@@ -41,6 +40,7 @@ import sonia.scm.repository.api.RepositoryServiceFactory;
 import sonia.scm.web.security.AdministrationContext;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,6 +50,7 @@ import java.util.Optional;
 import static com.cloudogu.scm.repositorytemplate.RepositoryTemplateFinder.TEMPLATE_YAML;
 import static com.cloudogu.scm.repositorytemplate.RepositoryTemplateFinder.TEMPLATE_YML;
 
+@Singleton
 public class RepositoryTemplateCollector {
 
   private static final Logger LOG = LoggerFactory.getLogger(RepositoryTemplateCollector.class);
@@ -124,11 +125,7 @@ public class RepositoryTemplateCollector {
   }
 
   private void filterTemplatesByUserPermission(Collection<RepositoryTemplate> repositoryTemplates) {
-    repositoryTemplates.removeIf(repositoryTemplate -> {
-      String[] splittedNamespaceAndName = repositoryTemplate.getTemplateRepository().split("/");
-      Repository repository = repositoryManager.get(new NamespaceAndName(splittedNamespaceAndName[0], splittedNamespaceAndName[1]));
-      return !RepositoryPermissions.read(repository).isPermitted();
-    });
+    repositoryTemplates.removeIf(repositoryTemplate -> !RepositoryPermissions.read(repositoryTemplate.getRepositoryId()).isPermitted());
   }
 
   private void filterAllRepositoriesForTemplateFile(Collection<RepositoryTemplate> repositoryTemplates) {
@@ -136,7 +133,7 @@ public class RepositoryTemplateCollector {
       try (RepositoryService repositoryService = serviceFactory.create(repository)) {
         Optional<String> templateFile = RepositoryTemplateFinder.templateFileExists(repositoryService);
         if (templateFile.isPresent()) {
-          repositoryTemplates.add(new RepositoryTemplate(repository.getNamespaceAndName().toString()));
+          repositoryTemplates.add(new RepositoryTemplate(repository));
         }
       } catch (IOException e) {
         LOG.error("could not read template file in repository" + repository.getNamespaceAndName().toString(), e);

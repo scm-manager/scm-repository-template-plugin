@@ -144,14 +144,15 @@ public class RepositoryTemplater {
 
   private RepositoryTemplate parseTemplateConfig(RepositoryService repositoryService) throws IOException {
     Optional<String> templateFile = RepositoryTemplateFinder.templateFileExists(repositoryService);
+    Repository repository = repositoryService.getRepository();
     if (!templateFile.isPresent()) {
       throw NotFoundException.notFound(
-        ContextEntry.ContextBuilder.entity(RepositoryTemplate.class, "template file").in(repositoryService.getRepository())
+        ContextEntry.ContextBuilder.entity(RepositoryTemplate.class, "template file").in(repository)
       );
     }
     try (InputStream templateYml = repositoryService.getCatCommand().getStream(templateFile.get())) {
       RepositoryTemplate repositoryTemplate = unmarshallRepositoryTemplate(templateFile.get(), templateYml);
-      repositoryTemplate.setTemplateRepository(repositoryService.getRepository().getNamespaceAndName().toString());
+      repositoryTemplate.setRepository(repository);
       if (repositoryTemplate.getFiles() == null) {
         repositoryTemplate.setFiles(Collections.emptyList());
       }
