@@ -40,6 +40,7 @@ import sonia.scm.repository.api.RepositoryServiceFactory;
 import sonia.scm.web.security.AdministrationContext;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,6 +50,7 @@ import java.util.Optional;
 import static com.cloudogu.scm.repositorytemplate.RepositoryTemplateFinder.TEMPLATE_YAML;
 import static com.cloudogu.scm.repositorytemplate.RepositoryTemplateFinder.TEMPLATE_YML;
 
+@Singleton
 public class RepositoryTemplateCollector {
 
   private static final Logger LOG = LoggerFactory.getLogger(RepositoryTemplateCollector.class);
