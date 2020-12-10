@@ -166,7 +166,6 @@ class RepositoryTemplateCollectorTest {
   @Test
   void shouldCollectRepositoryTemplatesFromCache() {
     when(subject.isPermitted("repository:read:" + REPOSITORY.getId())).thenReturn(true);
-    when(repositoryManager.get(new NamespaceAndName(REPOSITORY.getNamespace(), REPOSITORY.getName()))).thenReturn(REPOSITORY);
 
     List<RepositoryTemplate> repositoryTemplates = createRepoTemplateList(
       "hitchhiker",
@@ -188,7 +187,6 @@ class RepositoryTemplateCollectorTest {
   @Test
   void shouldNotCollectRepositoryTemplatesFromCacheForUserWithoutReadPermission() {
     when(subject.isPermitted("repository:read:" + REPOSITORY.getId())).thenReturn(false);
-    when(repositoryManager.get(new NamespaceAndName(REPOSITORY.getNamespace(), REPOSITORY.getName()))).thenReturn(REPOSITORY);
 
     List<RepositoryTemplate> repositoryTemplates = createRepoTemplateList(
       "hitchhiker",
@@ -208,7 +206,6 @@ class RepositoryTemplateCollectorTest {
       createRepoTemplateList("hitchhiker", new RepositoryTemplateFile(".gitignore", false));
 
     cacheManager.getCache(CACHE_NAME).put("templates", repositoryTemplates);
-    when(repositoryManager.get(new NamespaceAndName(REPOSITORY.getNamespace(), REPOSITORY.getName()))).thenReturn(REPOSITORY);
 
     Collection<RepositoryTemplate> templates = collector.collect();
 
@@ -280,7 +277,7 @@ class RepositoryTemplateCollectorTest {
 
   private List<RepositoryTemplate> createRepoTemplateList(String engine, RepositoryTemplateFile... templateFiles) {
     RepositoryTemplate repositoryTemplate = new RepositoryTemplate();
-    repositoryTemplate.setTemplateRepository(REPOSITORY.getNamespaceAndName().toString());
+    repositoryTemplate.setRepository(REPOSITORY);
     repositoryTemplate.setEngine(engine);
     repositoryTemplate.setFiles(Arrays.asList(templateFiles.clone()));
     List<RepositoryTemplate> repositoryTemplates = new ArrayList<>();
