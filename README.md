@@ -9,6 +9,10 @@
 
 Enable creators of repositories to choose a template repository upon initialization. Repositories with a specific configuration file are marked as templates and will be automatically detected by SCM-Manager.
 
+## Usage
+
+Find out how this plugin can be used on the [user documentation page](https://www.scm-manager.org/plugins/scm-repository-template-plugin/docs/latest/en/usage/).
+
 ## Build and testing
 
 The plugin can be compiled and packaged with the normal maven lifecycle:
