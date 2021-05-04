@@ -43,15 +43,15 @@ Beispiel einer zu verarbeitenden Datei für die Mustache Engine (hier eine pom.x
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.example.{{repository.name}}</groupId>
-    <artifactId>{{repository.name}}</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <packaging>pom</packaging>
+  <groupId>com.example.{{repository.name}}</groupId>
+  <artifactId>{{repository.name}}</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
 	<name>{{repository.name}}</name>
-    <description>{{repository.description}}</description>
+  <description>{{repository.description}}</description>
     
-    <scm>
+  <scm>
 		<developerConnection>scm:{{repository.type}}:https://example.com/scm/repo/projects/{{repository.name}}</developerConnection>
 	</scm>
 
