@@ -8,6 +8,11 @@
     "info": {
       "helpText": "You need help with your template file? Have a look for the official",
       "documentation": "documentation"
+    },
+    "templateRepository": {
+      "title": "Use Repository as Template",
+      "template": "Template Repository",
+      "untemplate": "Untemplate Repository"
     }
   },
   "errors": {

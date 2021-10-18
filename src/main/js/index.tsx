@@ -25,6 +25,8 @@
 import { binder } from "@scm-manager/ui-extensions";
 import TemplateSelect from "./TemplateSelect";
 import TemplateInfo from "./TemplateInfo";
+import TemplateRepository from "./TemplateRepository";
 
 binder.bind("repos.create.initialize", TemplateSelect);
 binder.bind("editor.file.hints", TemplateInfo);
+binder.bind("repo-config.route", TemplateRepository);

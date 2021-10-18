@@ -32,11 +32,10 @@ import java.util.Optional;
 
 public class RepositoryTemplateFinder {
 
-  private RepositoryTemplateFinder() {
-  }
-
   public static final String TEMPLATE_YML = "template.yml";
   public static final String TEMPLATE_YAML = "template.yaml";
+  private RepositoryTemplateFinder() {
+  }
 
   public static Optional<String> templateFileExists(RepositoryService repositoryService) throws IOException {
     if (fileExists(repositoryService, TEMPLATE_YML)) {
@@ -51,6 +50,7 @@ public class RepositoryTemplateFinder {
   private static boolean fileExists(RepositoryService repositoryService, String templateYml) throws IOException {
     try {
       BrowserResult browserResult = repositoryService.getBrowseCommand().setPath(templateYml).getBrowserResult();
+      System.out.println(browserResult);
       return browserResult != null
         && browserResult.getFile() != null
         && !browserResult.getFile().isDirectory() &&

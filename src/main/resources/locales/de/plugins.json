@@ -8,6 +8,11 @@
     "info": {
       "helpText": "Sie haben Fragen zur Template Datei? Hier geht's zur",
       "documentation": "Dokumentation"
+    },
+    "templateRepository": {
+      "title": "Repository als Vorlage verwenden",
+      "start": "Template Repository",
+      "stop": "Untemplate Repository"
     }
   },
   "errors": {

@@ -49,7 +49,7 @@ public class TemplateParsingException extends ExceptionWithContext {
 
   @Override
   public Optional<String> getUrl() {
-    return Optional.of("https://scm-manager.org/plugins/scm-repository-template-plugin/docs/1.0.x/en/usage/");
+    return Optional.of("https://scm-manager.org/plugins/scm-repository-template-plugin/docs/latest/en/usage/");
   }
 
   @Override
