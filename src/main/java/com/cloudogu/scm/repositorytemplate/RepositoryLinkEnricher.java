@@ -60,16 +60,20 @@ public class RepositoryLinkEnricher implements HalEnricher {
     Repository repository = context.oneRequireByType(Repository.class);
     if (RepositoryPermissions.push(repository).isPermitted()) {
       try (RepositoryService repositoryService = serviceFactory.create(repository.getId())) {
-        Optional<String> templateFile = RepositoryTemplateFinder.templateFileExists(repositoryService);
-        LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), RepositoryTemplateRepositoryResource.class);
-        if (templateFile.isPresent()) {
-          appender.appendLink("untemplate", linkBuilder.method("untemplateRepository").parameters(repository.getNamespace(), repository.getName()).href());
-        } else {
-          appender.appendLink("template", linkBuilder.method("templateRepository").parameters(repository.getNamespace(), repository.getName()).href());
-        }
+        appendLinks(appender, repository, repositoryService);
       } catch (IOException e) {
         log.debug(e.getMessage());
       }
+    }
+  }
+
+  private void appendLinks(HalAppender appender, Repository repository, RepositoryService repositoryService) throws IOException {
+    Optional<String> templateFile = RepositoryTemplateFinder.templateFileExists(repositoryService);
+    LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), RepositoryTemplateRepositoryResource.class);
+    if (templateFile.isPresent()) {
+      appender.appendLink("untemplate", linkBuilder.method("untemplateRepository").parameters(repository.getNamespace(), repository.getName()).href());
+    } else {
+      appender.appendLink("template", linkBuilder.method("templateRepository").parameters(repository.getNamespace(), repository.getName()).href());
     }
   }
 }

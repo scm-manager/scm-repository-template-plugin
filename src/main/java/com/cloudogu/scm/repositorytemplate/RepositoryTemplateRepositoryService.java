@@ -25,7 +25,6 @@
 package com.cloudogu.scm.repositorytemplate;
 
 import sonia.scm.repository.NamespaceAndName;
-import sonia.scm.repository.api.ModifyCommandBuilder;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
 
@@ -45,15 +44,13 @@ public class RepositoryTemplateRepositoryService {
 
   public void templateRepository(NamespaceAndName namespaceAndName) throws IOException {
     try (RepositoryService repositoryService = serviceFactory.create(namespaceAndName)) {
-      ModifyCommandBuilder modifyCommand = repositoryService.getModifyCommand();
-
       String fileContent = "engine: mustache\n" +
         "encoding: UTF-8\n" +
         "files:\n" +
         "  - path: \"\"\n" +
         "    filtered: false";
 
-      modifyCommand
+      repositoryService.getModifyCommand()
         .useDefaultPath(true)
         .setCommitMessage("Create template from repository")
         .createFile("template.yml")
@@ -64,8 +61,7 @@ public class RepositoryTemplateRepositoryService {
 
   public void untemplateRepository(NamespaceAndName namespaceAndName) {
     try (RepositoryService repositoryService = serviceFactory.create(namespaceAndName)) {
-      ModifyCommandBuilder modifyCommand = repositoryService.getModifyCommand();
-      modifyCommand
+      repositoryService.getModifyCommand()
         .useDefaultPath(true)
         .setCommitMessage("Delete template from repository")
         .deleteFile("template.yml")

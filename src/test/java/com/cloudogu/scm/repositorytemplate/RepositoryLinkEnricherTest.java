@@ -23,10 +23,10 @@
  */
 package com.cloudogu.scm.repositorytemplate;
 
+import com.google.inject.Provider;
 import com.google.inject.util.Providers;
-import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.ThreadContext;
-import org.junit.jupiter.api.AfterEach;
+import org.github.sdorra.jse.ShiroExtension;
+import org.github.sdorra.jse.SubjectAware;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,82 +51,64 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@SubjectAware(value = "trillian")
+@ExtendWith({MockitoExtension.class, ShiroExtension.class})
 class RepositoryLinkEnricherTest {
 
-    private static final Repository REPOSITORY = new Repository("id-1", "git", "space", "x");
+  private static final Repository REPOSITORY = new Repository("id-1", "git", "hitchhiker", "HeartOfGold");
 
-    @Mock
-    private RepositoryServiceFactory serviceFactory;
+  @Mock
+  private RepositoryServiceFactory serviceFactory;
 
-    @Mock
-    private HalAppender appender;
-    @Mock
-    private Subject subject;
+  @Mock
+  private HalAppender appender;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private RepositoryService service;
+  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+  private RepositoryService service;
 
-    private HalEnricherContext context;
+  private HalEnricherContext context;
 
-    @InjectMocks
-    private RepositoryLinkEnricher enricher;
+  @InjectMocks
+  private RepositoryLinkEnricher enricher;
 
-    @BeforeEach
-    void setUp() {
-        ScmPathInfoStore scmPathInfoStore = new ScmPathInfoStore();
-        scmPathInfoStore.set(() -> URI.create("https://scm-manager.org/scm/api/"));
-        com.google.inject.Provider<ScmPathInfoStore> scmPathInfoStoreProvider = Providers.of(scmPathInfoStore);
-        enricher = new RepositoryLinkEnricher(scmPathInfoStoreProvider, serviceFactory);
-        context = HalEnricherContext.of(REPOSITORY);
-    }
+  @BeforeEach
+  void setUp() {
+    ScmPathInfoStore scmPathInfoStore = new ScmPathInfoStore();
+    scmPathInfoStore.set(() -> URI.create("https://scm-manager.org/scm/api/"));
+    Provider<ScmPathInfoStore> scmPathInfoStoreProvider = Providers.of(scmPathInfoStore);
+    enricher = new RepositoryLinkEnricher(scmPathInfoStoreProvider, serviceFactory);
+    context = HalEnricherContext.of(REPOSITORY);
+  }
 
-    @BeforeEach
-    void prepareRepository() {
-        REPOSITORY.setId("id-1");
-        REPOSITORY.setNamespace("hitchhiker");
-        REPOSITORY.setName("HeartOfGold");
-    }
+  @Test
+  @SubjectAware(permissions = "repository:push:id-1")
+  void shouldEnrichTemplateLink() {
+    when(serviceFactory.create(REPOSITORY.getId())).thenReturn(service);
 
-    @BeforeEach
-    void initSubject() {
-        ThreadContext.bind(subject);
-    }
+    enricher.enrich(context, appender);
 
-    @AfterEach
-    void tearDownSubject() {
-        ThreadContext.unbindSubject();
-    }
+    verify(appender).appendLink("template", "https://scm-manager.org/scm/api/v2/template/repo/hitchhiker/HeartOfGold/template");
+  }
 
-    @Test
-    void shoudEnrichTemplateLink() {
-        when(subject.isPermitted("repository:push:id-1")).thenReturn(true);
-        when(serviceFactory.create(REPOSITORY.getId())).thenReturn(service);
+  @Test
+  @SubjectAware(permissions = "repository:push:id-1")
+  void shouldEnrichUntemplateLink() throws IOException {
+    FileObject fileObject = new FileObject();
+    fileObject.setName("template.yml");
+    BrowserResult browserResult = new BrowserResult("revision", fileObject);
 
-        enricher.enrich(context, appender);
+    when(serviceFactory.create(REPOSITORY.getId())).thenReturn(service);
+    when(service.getBrowseCommand().setPath("template.yml").getBrowserResult()).thenReturn(browserResult);
 
-        verify(appender).appendLink("template", "https://scm-manager.org/scm/api/v2/template/hitchhiker/HeartOfGold");
-    }
+    enricher.enrich(context, appender);
 
-    @Test
-    void shoudEnrichUntemplateLink() throws IOException {
-        FileObject fileObject = new FileObject();
-        fileObject.setName("template.yml");
-        BrowserResult browserResult = new BrowserResult("revision", fileObject);
+    verify(appender).appendLink("untemplate", "https://scm-manager.org/scm/api/v2/template/repo/hitchhiker/HeartOfGold/untemplate");
+  }
 
-        when(subject.isPermitted("repository:push:id-1")).thenReturn(true);
-        when(serviceFactory.create(REPOSITORY.getId())).thenReturn(service);
-        when(service.getBrowseCommand().setPath("template.yml").getBrowserResult()).thenReturn(browserResult);
+  @Test
+  void shouldNotEnrichTemplateLinkWhenNotPermitted() {
+    enricher.enrich(context, appender);
 
-        enricher.enrich(context, appender);
-
-        verify(appender).appendLink("untemplate", "https://scm-manager.org/scm/api/v2/untemplate/hitchhiker/HeartOfGold");
-    }
-
-    @Test
-    void shouldNotEnrichTemplateLinkWhenNotPermitted() {
-        enricher.enrich(context, appender);
-
-        verify(appender, never()).appendLink(anyString(), anyString());
-    }
+    verify(appender, never()).appendLink(anyString(), anyString());
+  }
 }

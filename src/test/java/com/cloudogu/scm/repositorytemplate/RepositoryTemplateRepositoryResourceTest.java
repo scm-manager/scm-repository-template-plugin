@@ -62,7 +62,7 @@ class RepositoryTemplateRepositoryResourceTest {
 
   @Test
   void shouldTemplateRepository() throws URISyntaxException, IOException {
-    MockHttpRequest request = MockHttpRequest.post("/v2/template/" + REPOSITORY.getNamespace() + "/" + REPOSITORY.getName());
+    MockHttpRequest request = MockHttpRequest.post("/v2/template/repo/" + REPOSITORY.getNamespace() + "/" + REPOSITORY.getName() + "/template");
     MockHttpResponse response = new MockHttpResponse();
 
     dispatcher.invoke(request, response);
@@ -73,7 +73,7 @@ class RepositoryTemplateRepositoryResourceTest {
 
   @Test
   void shouldUntemplateRepository() throws URISyntaxException {
-    MockHttpRequest request = MockHttpRequest.post("/v2/untemplate/" + REPOSITORY.getNamespace() + "/" + REPOSITORY.getName());
+    MockHttpRequest request = MockHttpRequest.post("/v2/template/repo/" + REPOSITORY.getNamespace() + "/" + REPOSITORY.getName() + "/untemplate");
     MockHttpResponse response = new MockHttpResponse();
 
     dispatcher.invoke(request, response);

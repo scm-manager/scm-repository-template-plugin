@@ -35,10 +35,9 @@ import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 
-@Path("v2/")
+@Path("v2/template/repo/")
 public class RepositoryTemplateRepositoryResource {
 
   private final RepositoryTemplateRepositoryService service;
@@ -49,10 +48,10 @@ public class RepositoryTemplateRepositoryResource {
   }
 
   @POST
-  @Path("template/{namespace}/{name}")
+  @Path("{namespace}/{name}/template")
   @Operation(
-    summary = "Use repository as template",
-    description = "Use a repository as a repository template",
+    summary = "Mark repository as template",
+    description = "Mark the repository as a repository template",
     tags = "Repository Templates",
     operationId = "repository_template_use_repository"
   )
@@ -69,17 +68,16 @@ public class RepositoryTemplateRepositoryResource {
       schema = @Schema(implementation = ErrorDto.class)
     )
   )
-  public Response templateRepository(@PathParam("namespace") String namespace,
-                                     @PathParam("name") String name) throws IOException {
+  public void templateRepository(@PathParam("namespace") String namespace,
+                                 @PathParam("name") String name) throws IOException {
     service.templateRepository(new NamespaceAndName(namespace, name));
-    return Response.noContent().build();
   }
 
   @POST
-  @Path("untemplate/{namespace}/{name}")
+  @Path("{namespace}/{name}/untemplate")
   @Operation(
-    summary = "Unuse repository as template",
-    description = "Don't use a repository as a template anymore",
+    summary = "Unmark repository as template",
+    description = "Unmark the repository as a template",
     tags = "Repository Templates",
     operationId = "repository_template_unuse_repository"
   )
@@ -96,9 +94,8 @@ public class RepositoryTemplateRepositoryResource {
       schema = @Schema(implementation = ErrorDto.class)
     )
   )
-  public Response untemplateRepository(@PathParam("namespace") String namespace,
-                                       @PathParam("name") String name) {
+  public void untemplateRepository(@PathParam("namespace") String namespace,
+                                   @PathParam("name") String name) {
     service.untemplateRepository(new NamespaceAndName(namespace, name));
-    return Response.noContent().build();
   }
 }

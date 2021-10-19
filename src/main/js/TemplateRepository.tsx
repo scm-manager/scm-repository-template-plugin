@@ -21,10 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { FC, useEffect, useState } from "react";
+import React, { FC } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, Repository } from "@scm-manager/ui-types";
-import { apiClient, Subtitle, Level, Button, ErrorNotification } from "@scm-manager/ui-components";
+import { Repository } from "@scm-manager/ui-types";
+import { Button, ErrorNotification, Level, Subtitle } from "@scm-manager/ui-components";
+import { useRepositoryTemplate } from "./useRepositoryTemplate";
 
 type Props = {
   repository: Repository;
@@ -32,39 +33,29 @@ type Props = {
 
 const TemplateRepository: FC<Props> = ({ repository }) => {
   const [t] = useTranslation("plugins");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [link, setLink] = useState("");
-  const [template, setTemplate] = useState(false);
+  const { isLoading, error, template, untemplate } = useRepositoryTemplate(repository);
 
-  useEffect(() => {
-    setLoading(true);
-    setLink(getLink(repository));
-    setTemplate(!!repository?._links?.untemplate);
-    setLoading(false);
-  }, [repository]);
-
-  const getLink: (repository: Repository) => string = (repository: Repository) => {
-    const currentLink = (repository?._links?.untemplate || repository?._links?.template) as Link;
-    return currentLink?.href;
-  };
-
-  const toggleTemplate = () => {
-    setLoading(true);
-    apiClient
-      .post(link)
-      .then(() => apiClient.get((repository._links.self as Link).href))
-      .then(response => response.json())
-      .then(updatedRepository => {
-        setTemplate(!template);
-        setLink(getLink(updatedRepository));
-      })
-      .catch(setError)
-      .finally(() => setLoading(false));
-  };
-
-  if (!(repository?._links?.untemplate || repository?._links?.template)) {
+  if (!(repository._links.template || repository._links.untemplate)) {
     return null;
+  }
+
+  let button;
+  if (repository._links.template) {
+    button = (
+      <Button
+        label={t("scm-repository-template-plugin.templateRepository.template")}
+        action={template}
+        loading={isLoading}
+      />
+    );
+  } else {
+    button = (
+      <Button
+        label={t("scm-repository-template-plugin.templateRepository.untemplate")}
+        action={untemplate}
+        loading={isLoading}
+      />
+    );
   }
 
   return (
@@ -72,19 +63,7 @@ const TemplateRepository: FC<Props> = ({ repository }) => {
       <hr />
       <Subtitle subtitle={t("scm-repository-template-plugin.templateRepository.title")} />
       {error && <ErrorNotification error={error} />}
-      <Level
-        right={
-          <Button
-            label={
-              template
-                ? t("scm-repository-template-plugin.templateRepository.untemplate")
-                : t("scm-repository-template-plugin.templateRepository.template")
-            }
-            action={toggleTemplate}
-            loading={loading}
-          />
-        }
-      />
+      <Level right={button} />
     </>
   );
 };
