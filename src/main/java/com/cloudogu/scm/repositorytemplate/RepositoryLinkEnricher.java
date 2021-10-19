@@ -69,7 +69,6 @@ public class RepositoryLinkEnricher implements HalEnricher {
         }
       } catch (IOException e) {
         log.debug(e.getMessage());
-        // TODO: SOOO?
       }
     }
   }

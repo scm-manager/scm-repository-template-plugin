@@ -50,7 +50,6 @@ public class RepositoryTemplateFinder {
   private static boolean fileExists(RepositoryService repositoryService, String templateYml) throws IOException {
     try {
       BrowserResult browserResult = repositoryService.getBrowseCommand().setPath(templateYml).getBrowserResult();
-      System.out.println(browserResult);
       return browserResult != null
         && browserResult.getFile() != null
         && !browserResult.getFile().isDirectory() &&
