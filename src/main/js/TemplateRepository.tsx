@@ -46,7 +46,7 @@ const TemplateRepository: FC<Props> = ({ repository }) => {
 
   const getLink: (repository: Repository) => string = (repository: Repository) => {
     const currentLink = (repository?._links?.untemplate || repository?._links?.template) as Link;
-    return currentLink.href;
+    return currentLink?.href;
   };
 
   const toggleTemplate = () => {
@@ -62,6 +62,10 @@ const TemplateRepository: FC<Props> = ({ repository }) => {
       .catch(setError)
       .finally(() => setLoading(false));
   };
+
+  if (!(repository?._links?.untemplate || repository?._links?.template)) {
+    return null;
+  }
 
   return (
     <>
