@@ -58,6 +58,8 @@ Beispiel einer zu verarbeitenden Datei für die Mustache Engine (hier eine pom.x
 </project>
 ```
 
+Aus einem bestehenden Repository und der dazugehörigen Verzeichnisstruktur heraus können Benutzer mit Push-Berechtigung über die Schaltfläche "Template Repository" in den Repository-Einstellungen ein Template erzeugen. 
+
 Nachdem ein Repository als Vorlage definiert wurde, kann man es für die Initialisierung bei der Repository Erstellung auswählen.
 
 ![Create repository](assets/create-repo.png)

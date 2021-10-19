@@ -37,6 +37,7 @@ import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -53,8 +54,10 @@ class RepositoryTemplateRepositoryServiceTest {
   private RepositoryServiceFactory serviceFactory;
   @Mock
   private RepositoryService repositoryService;
-  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+  @Mock(answer = Answers.RETURNS_SELF)
   private ModifyCommandBuilder modifyCommand;
+  @Mock
+  private ModifyCommandBuilder.WithOverwriteFlagContentLoader withOverwriteFlagContentLoader;
 
   @BeforeEach
   void setUpModifyCommand() {
@@ -64,6 +67,9 @@ class RepositoryTemplateRepositoryServiceTest {
 
   @Test
   void shouldCreateTemplateFile() throws IOException {
+    when(modifyCommand.createFile(any())).thenReturn(withOverwriteFlagContentLoader);
+    when(withOverwriteFlagContentLoader.withData(any(InputStream.class))).thenReturn(modifyCommand);
+
     templateService.templateRepository(REPOSITORY.getNamespaceAndName());
 
     verify(modifyCommand).setCommitMessage("Create template from repository");

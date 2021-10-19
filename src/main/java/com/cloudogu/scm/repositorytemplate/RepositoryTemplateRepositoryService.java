@@ -24,15 +24,15 @@
 
 package com.cloudogu.scm.repositorytemplate;
 
-import com.google.common.io.Resources;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.api.ModifyCommandBuilder;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
 
 import javax.inject.Inject;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class RepositoryTemplateRepositoryService {
 
@@ -46,13 +46,18 @@ public class RepositoryTemplateRepositoryService {
   public void templateRepository(NamespaceAndName namespaceAndName) throws IOException {
     try (RepositoryService repositoryService = serviceFactory.create(namespaceAndName)) {
       ModifyCommandBuilder modifyCommand = repositoryService.getModifyCommand();
-      URL url = Resources.getResource("com/cloudogu/scm/repositorytemplate/template_repository.yml");
+
+      String fileContent = "engine: mustache\n" +
+        "encoding: UTF-8\n" +
+        "files:\n" +
+        "  - path: \"\"\n" +
+        "    filtered: false";
 
       modifyCommand
         .useDefaultPath(true)
         .setCommitMessage("Create template from repository")
         .createFile("template.yml")
-        .withData(url.openStream())
+        .withData(new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8)))
         .execute();
     }
   }

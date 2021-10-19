@@ -56,6 +56,8 @@ Example of a file that can be templated with the Mustache engine (here a pom.xml
 </project>
 ```
 
+From an existing repository and its directory structure, users with push permission can create a template using the "Template Repository" button in the repository settings.
+
 After a repository got marked as template it is available on the repository creation if you check `initialize repository`.
 
 ![Create repository](assets/create-repo.png)
