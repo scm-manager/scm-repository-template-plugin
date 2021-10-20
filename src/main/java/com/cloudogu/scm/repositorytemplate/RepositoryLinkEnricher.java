@@ -61,7 +61,7 @@ public class RepositoryLinkEnricher implements HalEnricher {
       try (RepositoryService repositoryService = serviceFactory.create(repository.getId())) {
         appendLinks(appender, repository, repositoryService);
       } catch (IOException e) {
-        throw new InternalRepositoryException(repository, "could not create repository service", e);
+        throw new InternalRepositoryException(repository, "could not check for template file", e);
       }
     }
   }

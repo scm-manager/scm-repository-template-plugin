@@ -10,8 +10,14 @@
       "documentation": "Dokumentation"
     },
     "templateRepository": {
-      "title": "Repository als Vorlage verwenden",
-      "description": "Erzeuge aus einem bestehenden Repository und der dazugehörigen Verzeichnisstruktur heraus ein Template. \n",
+      "title": {
+        "template": "Repository als Vorlage verwenden",
+        "untemplate": "Repository aus Vorlagen entfernen"
+      },
+      "description": {
+        "template": "Das Repository als Vorlage markieren. Es wird eine \"template.yaml\" im Root Verzeichnis erzeugt, die alle Dateien und Ordner dieses Repositories in die Vorlage aufnimmt. Für Einschränkungen oder Filter kann diese \"template.yaml\" angepasst werden.",
+        "untemplate": "Entferne die Vorlagen-Markierung des Repository. Die \"template.yaml\" wird aus dem Repository gelöscht."
+      },
       "start": "Template Repository",
       "stop": "Untemplate Repository"
     }

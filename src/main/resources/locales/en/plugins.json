@@ -10,8 +10,14 @@
       "documentation": "documentation"
     },
     "templateRepository": {
-      "title": "Use Repository as Template",
-      "description": "Create a template from an existing repository and its directory structure.\n",
+      "title": {
+        "template": "Mark Repository as Template",
+        "untemplate": "Unmark Repository as Template"
+      },
+      "description": {
+        "template": "Mark the repository as template. A \"template.yaml\" is created in the root directory, which includes all files and folders of this repository in the template. For restrictions or filters this \"template.yaml\" can be customized.",
+        "untemplate": "Unmark the repository as template. The \"template.yaml\" will be deleted from the repository."
+      },
       "template": "Template Repository",
       "untemplate": "Untemplate Repository"
     }

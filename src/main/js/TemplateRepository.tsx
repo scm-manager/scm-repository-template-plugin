@@ -43,6 +43,8 @@ const TemplateRepository: FC<Props> = ({ repository }) => {
   if (repository._links.template) {
     button = (
       <Button
+        className="is-primary"
+        icon="clone"
         label={t("scm-repository-template-plugin.templateRepository.template")}
         action={template}
         loading={isLoading}
@@ -51,6 +53,8 @@ const TemplateRepository: FC<Props> = ({ repository }) => {
   } else {
     button = (
       <Button
+        className="is-warning"
+        icon="times"
         label={t("scm-repository-template-plugin.templateRepository.untemplate")}
         action={untemplate}
         loading={isLoading}
@@ -58,11 +62,19 @@ const TemplateRepository: FC<Props> = ({ repository }) => {
     );
   }
 
+  const description = repository._links.template
+    ? t("scm-repository-template-plugin.templateRepository.description.template")
+    : t("scm-repository-template-plugin.templateRepository.description.untemplate");
+
+  const subtitle = repository._links.template
+    ? t("scm-repository-template-plugin.templateRepository.title.template")
+    : t("scm-repository-template-plugin.templateRepository.title.untemplate");
+
   return (
     <>
       <hr />
-      <Subtitle subtitle={t("scm-repository-template-plugin.templateRepository.title")} />
-      <p>{t("scm-repository-template-plugin.templateRepository.description")}</p>
+      <Subtitle subtitle={subtitle} />
+      <p className="pb-4">{description}</p>
       {error && <ErrorNotification error={error} />}
       <Level right={button} />
     </>
