@@ -51,7 +51,6 @@ public class RepositoryTemplateRepositoryService {
         "    filtered: false";
 
       repositoryService.getModifyCommand()
-        .useDefaultPath(true)
         .setCommitMessage("Create template from repository")
         .createFile("template.yml")
         .withData(new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8)))
@@ -62,7 +61,6 @@ public class RepositoryTemplateRepositoryService {
   public void untemplateRepository(NamespaceAndName namespaceAndName) {
     try (RepositoryService repositoryService = serviceFactory.create(namespaceAndName)) {
       repositoryService.getModifyCommand()
-        .useDefaultPath(true)
         .setCommitMessage("Delete template from repository")
         .deleteFile("template.yml")
         .execute();

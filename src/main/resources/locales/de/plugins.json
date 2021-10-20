@@ -11,6 +11,7 @@
     },
     "templateRepository": {
       "title": "Repository als Vorlage verwenden",
+      "description": "Erzeuge aus einem bestehenden Repository und der dazugehörigen Verzeichnisstruktur heraus ein Template. \n",
       "start": "Template Repository",
       "stop": "Untemplate Repository"
     }

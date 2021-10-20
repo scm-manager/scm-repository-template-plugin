@@ -62,6 +62,7 @@ const TemplateRepository: FC<Props> = ({ repository }) => {
     <>
       <hr />
       <Subtitle subtitle={t("scm-repository-template-plugin.templateRepository.title")} />
+      <p>{t("scm-repository-template-plugin.templateRepository.description")}</p>
       {error && <ErrorNotification error={error} />}
       <Level right={button} />
     </>

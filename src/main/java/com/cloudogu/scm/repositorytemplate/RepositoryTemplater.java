@@ -90,7 +90,7 @@ public class RepositoryTemplater {
 
     for (RepositoryTemplateFile templateFile : repositoryTemplate.getFiles()) {
       String filePath = removeLeadingSlashOnFilepath(templateFile);
-      BrowserResult result = templateService.getBrowseCommand().setPath(filePath).setRecursive(true).getBrowserResult();
+      BrowserResult result = templateService.getBrowseCommand().setPath(filePath).setRecursive(true).setLimit(10000000).getBrowserResult();
       copyFileRecursively(templateService, templateFilter, templateFile, result.getFile());
     }
   }
@@ -106,7 +106,7 @@ public class RepositoryTemplater {
   private void copyFileRecursively(RepositoryService templateService, TemplateFilter filter, RepositoryTemplateFile templateFile, FileObject file) throws IOException {
     if (file.isDirectory()) {
       for (FileObject child : file.getChildren()) {
-        BrowserResult result = templateService.getBrowseCommand().setPath(child.getPath()).setRecursive(true).getBrowserResult();
+        BrowserResult result = templateService.getBrowseCommand().setPath(child.getPath()).setRecursive(true).setLimit(10000000).getBrowserResult();
         copyFileRecursively(templateService, filter, templateFile, result.getFile());
       }
     } else {
