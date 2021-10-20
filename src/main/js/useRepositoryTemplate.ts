@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright (c) 2020-present Cloudogu GmbH and Contributors
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,26 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import { useMutation, useQueryClient } from "react-query";
+import { Link, Repository } from "@scm-manager/ui-types";
+import { apiClient } from "@scm-manager/ui-components";
 
-
-plugins {
-  id 'org.scm-manager.smp' version '0.9.3'
-}
-
-dependencies {
-  implementation 'org.yaml:snakeyaml:1.29'
-}
-
-scmPlugin {
-  scmVersion = "2.24.0"
-  displayName = "Repository Template"
-  description = "Enables creators of repositories to choose a template repository upon initialization"
-  author = "Sebastian Sdorra"
-  category = "Workflow"
-
-  openapi {
-    packages = [
-      "com.cloudogu.scm.repositorytemplate",
-    ]
-  }
-}
+export const useRepositoryTemplate = (repository: Repository) => {
+  const queryClient = useQueryClient();
+  const { mutate, isLoading, error } = useMutation<unknown, Error, string>(
+    (link: string) => {
+      return apiClient.post(link, {});
+    },
+    {
+      onSuccess: () => {
+        return queryClient.invalidateQueries(["repository", repository.namespace, repository.name]);
+      }
+    }
+  );
+  return {
+    template: () => {
+      mutate((repository._links.template as Link).href);
+    },
+    untemplate: () => {
+      mutate((repository._links.untemplate as Link).href);
+    },
+    isLoading,
+    error
+  };
+};
