@@ -1,2 +1,0 @@
-- type: fixed
-  description: Repos created from templates should not immediately become templates themselves ([#12](https://github.com/scm-manager/scm-repository-template-plugin/pull/12))
