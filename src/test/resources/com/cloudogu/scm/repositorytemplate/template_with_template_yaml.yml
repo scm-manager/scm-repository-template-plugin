@@ -28,4 +28,6 @@ files:
     filtered: false
   - path: template.yml
     filtered: false
+  - path: template.yaml
+    filtered: false
 encoding: UTF-8
