@@ -168,6 +168,26 @@ class RepositoryTemplaterTest {
   }
 
   @Test
+  void shouldNotCopyTemplateYaml() throws IOException {
+    mockTemplateService("com/cloudogu/scm/repositorytemplate/template_with_template_yaml.yml");
+
+    FileObject templateYml = createFileObject("template.yml");
+    FileObject templateYaml = createFileObject("template.yaml");
+    FileObject docsMd = createFileObject("src/main/docs.md");
+    FileObject buildMd = createFileObject("src/main/template.yml");
+    FileObject packageMd = createFileObject("src/main/packageMd.md");
+    FileObject main = createFileObject("src/main", ImmutableList.of(docsMd, buildMd, packageMd));
+    FileObject src = createFileObject("src", ImmutableList.of(main));
+    createFileObject("", ImmutableList.of(templateYml, templateYaml, src));
+
+    when(context.create(anyString())).thenReturn(createFile);
+
+    repositoryTemplater.render(TEMPLATE_REPOSITORY, context);
+
+    verify(context, times(3)).create(anyString());
+  }
+
+  @Test
   void shouldCopyAndTemplateDirectoryRecursively() throws IOException {
     mockTemplateService("com/cloudogu/scm/repositorytemplate/template_only_dir.yml");
 
