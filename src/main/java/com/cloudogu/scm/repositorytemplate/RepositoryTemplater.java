@@ -115,6 +115,9 @@ public class RepositoryTemplater {
   }
 
   private void copyToTargetRepository(RepositoryService templateService, TemplateFilter filter, RepositoryTemplateFile templateFile, String filePath) throws IOException {
+    if (filePath.equals(RepositoryTemplateFinder.TEMPLATE_YML) || filePath.equals(RepositoryTemplateFinder.TEMPLATE_YAML)) {
+      return;
+    }
     try (InputStream content = templateService.getCatCommand().getStream(filePath)) {
       if (templateFile.isFiltered()) {
         copyFileTemplated(filter, content, filePath);
