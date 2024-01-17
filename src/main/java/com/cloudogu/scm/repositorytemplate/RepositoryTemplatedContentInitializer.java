@@ -30,7 +30,7 @@ import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryContentInitializer;
 import sonia.scm.repository.RepositoryManager;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 import java.util.Optional;
 
 @Extension

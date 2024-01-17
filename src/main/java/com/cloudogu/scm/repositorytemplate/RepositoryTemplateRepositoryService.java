@@ -28,7 +28,7 @@ import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

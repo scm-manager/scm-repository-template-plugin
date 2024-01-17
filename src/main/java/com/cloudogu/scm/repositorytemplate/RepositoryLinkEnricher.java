@@ -36,8 +36,8 @@ import sonia.scm.repository.RepositoryPermissions;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Provider;
+import javax.inject.Inject;
+import javax.inject.Provider;
 import java.io.IOException;
 import java.util.Optional;
 

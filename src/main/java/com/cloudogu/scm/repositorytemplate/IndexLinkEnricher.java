@@ -33,8 +33,8 @@ import sonia.scm.api.v2.resources.ScmPathInfoStore;
 import sonia.scm.plugin.Extension;
 import sonia.scm.repository.RepositoryPermissions;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Provider;
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 @Extension
 @Enrich(Index.class)

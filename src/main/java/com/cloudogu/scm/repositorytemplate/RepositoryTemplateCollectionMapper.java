@@ -29,8 +29,8 @@ import de.otto.edison.hal.Links;
 import sonia.scm.api.v2.resources.LinkBuilder;
 import sonia.scm.api.v2.resources.ScmPathInfoStore;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Provider;
+import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;

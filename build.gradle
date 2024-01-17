@@ -23,15 +23,15 @@
  */
 
 plugins {
-  id 'org.scm-manager.smp' version '0.16.1'
+  id 'org.scm-manager.smp' version '0.10.1'
 }
 
 dependencies {
-  implementation 'org.yaml:snakeyaml:2.2'
+  implementation 'org.yaml:snakeyaml:1.29'
 }
 
 scmPlugin {
-  scmVersion = "3.0.0-SNAPSHOT"
+  scmVersion = "2.24.0"
   displayName = "Repository Template"
   description = "Enables creators of repositories to choose a template repository upon initialization"
   author = "Sebastian Sdorra"
