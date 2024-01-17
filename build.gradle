@@ -23,11 +23,11 @@
  */
 
 plugins {
-  id 'org.scm-manager.smp' version '0.10.1'
+  id 'org.scm-manager.smp' version '0.15.0'
 }
 
 dependencies {
-  implementation 'org.yaml:snakeyaml:1.29'
+  implementation 'org.yaml:snakeyaml:2.2'
 }
 
 scmPlugin {
@@ -36,6 +36,7 @@ scmPlugin {
   description = "Enables creators of repositories to choose a template repository upon initialization"
   author = "Sebastian Sdorra"
   category = "Workflow"
+  childFirstClassloader = true
 
   openapi {
     packages = [
