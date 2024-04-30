@@ -27,6 +27,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -55,6 +57,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -148,11 +151,11 @@ class RepositoryTemplaterTest {
     mockTemplateService("com/cloudogu/scm/repositorytemplate/template_files_without_filter.yml");
     FileObject fileObject = createFileObject("README.md");
     when(browserResult.getFile()).thenReturn(fileObject);
-    when(context.create(anyString())).thenReturn(createFile);
+    when(context.createWithDefaultPath(anyString(), eq(true))).thenReturn(createFile);
 
     repositoryTemplater.render(TEMPLATE_REPOSITORY, context);
 
-    verify(context, times(1)).create("README.md");
+    verify(context, times(1)).createWithDefaultPath("README.md", true);
   }
 
   @Test
@@ -160,11 +163,11 @@ class RepositoryTemplaterTest {
     mockTemplateService("com/cloudogu/scm/repositorytemplate/template.yml");
     FileObject fileObject = createFileObject("README.md");
     when(browserResult.getFile()).thenReturn(fileObject);
-    when(context.create(anyString())).thenReturn(createFile);
+    when(context.createWithDefaultPath(anyString(), eq(true))).thenReturn(createFile);
 
     repositoryTemplater.render(TEMPLATE_REPOSITORY, context);
 
-    verify(context, times(3)).create(anyString());
+    verify(context, times(3)).createWithDefaultPath(anyString(), eq(true));
   }
 
   @Test
@@ -180,11 +183,11 @@ class RepositoryTemplaterTest {
     FileObject src = createFileObject("src", ImmutableList.of(main));
     createFileObject("", ImmutableList.of(templateYml, templateYaml, src));
 
-    when(context.create(anyString())).thenReturn(createFile);
+    when(context.createWithDefaultPath(anyString(), eq(true))).thenReturn(createFile);
 
     repositoryTemplater.render(TEMPLATE_REPOSITORY, context);
 
-    verify(context, times(3)).create(anyString());
+    verify(context, times(3)).createWithDefaultPath(anyString(), eq(true));
   }
 
   @Test
@@ -195,11 +198,11 @@ class RepositoryTemplaterTest {
     FileObject docsMd = createFileObject("src/docs.md");
     createFileObject("src", ImmutableList.of(testMd, docsMd));
 
-    when(context.create(anyString())).thenReturn(createFile);
+    when(context.createWithDefaultPath(anyString(), eq(true))).thenReturn(createFile);
 
     repositoryTemplater.render(TEMPLATE_REPOSITORY, context);
 
-    verify(context, times(2)).create(anyString());
+    verify(context, times(2)).createWithDefaultPath(anyString(), eq(true));
   }
 
   @Test
@@ -215,11 +218,39 @@ class RepositoryTemplaterTest {
     FileObject src = createFileObject("src", ImmutableList.of(main));
     createFileObject("", ImmutableList.of(testMd, templateYml, src));
 
-    when(context.create(anyString())).thenReturn(createFile);
+    when(context.createWithDefaultPath(anyString(), eq(true))).thenReturn(createFile);
 
     repositoryTemplater.render(TEMPLATE_REPOSITORY, context);
 
-    verify(context, times(3)).create(anyString());
+    verify(context, times(3)).createWithDefaultPath(anyString(), eq(true));
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "git,git,true",
+    "git,hg,true",
+    "git,svn,true",
+    "hg,git,true",
+    "hg,hg,true",
+    "hg,svn,true",
+    "svn,git,true",
+    "svn,hg,true",
+    "svn,svn,false",
+  })
+  void shouldUseDefaultPathCorrectly(String template, String target, String useDefaultPath) throws IOException {
+    Repository templateRepo = RepositoryTestData.createHeartOfGold(template);
+    Repository targetRepo = RepositoryTestData.createHeartOfGold(target);
+    mockTemplateService("com/cloudogu/scm/repositorytemplate/template.yml", templateRepo, targetRepo);
+
+    FileObject fileObject = createFileObject("README.md");
+    when(browserResult.getFile()).thenReturn(fileObject);
+    when(context.createWithDefaultPath(anyString(), eq(Boolean.parseBoolean(useDefaultPath)))).thenReturn(createFile);
+    when(context.getRepository()).thenReturn(targetRepo);
+
+    repositoryTemplater.render(templateRepo, context);
+
+    verify(context, times(3))
+      .createWithDefaultPath(anyString(), eq(Boolean.parseBoolean(useDefaultPath)));
   }
 
 
@@ -247,17 +278,21 @@ class RepositoryTemplaterTest {
   }
 
   private void mockTemplateService(String resourceFile) throws IOException {
+    mockTemplateService(resourceFile, TEMPLATE_REPOSITORY, TARGET_REPOSITORY);
+  }
+
+  private void mockTemplateService(String resourceFile, Repository template, Repository target) throws IOException {
     BufferedInputStream content = (BufferedInputStream) Resources.getResource(resourceFile).getContent();
-    when(serviceFactory.create(TEMPLATE_REPOSITORY)).thenReturn(templateRepositoryService);
+    lenient().when(serviceFactory.create(template)).thenReturn(templateRepositoryService);
     when(templateRepositoryService.getBrowseCommand()).thenReturn(browseCommandBuilder);
     lenient().when(browseCommandBuilder.getBrowserResult()).thenReturn(browserResult);
     FileObject file = new FileObject();
     file.setName("template.yml");
     lenient().when(browserResult.getFile()).thenReturn(file);
-    lenient().when(serviceFactory.create(TARGET_REPOSITORY)).thenReturn(targetRepositoryService);
+    lenient().when(serviceFactory.create(target)).thenReturn(targetRepositoryService);
     lenient().when(catCommandBuilder.getStream(any())).thenReturn(content);
     lenient().when(templateRepositoryService.getCatCommand()).thenReturn(catCommandBuilder);
-    lenient().when(templateRepositoryService.getRepository()).thenReturn(TEMPLATE_REPOSITORY);
+    lenient().when(templateRepositoryService.getRepository()).thenReturn(template);
     lenient().when(engineFactory.getEngine(anyString())).thenReturn(new TestTemplateEngine());
   }
 }

@@ -24,6 +24,7 @@
 package com.cloudogu.scm.repositorytemplate;
 
 import com.google.common.base.Strings;
+import jakarta.inject.Inject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -43,7 +44,6 @@ import sonia.scm.template.Template;
 import sonia.scm.template.TemplateEngine;
 import sonia.scm.template.TemplateEngineFactory;
 
-import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -121,20 +121,27 @@ public class RepositoryTemplater {
     }
     try (InputStream content = templateService.getCatCommand().getStream(filePath)) {
       if (templateFile.isFiltered()) {
-        copyFileTemplated(filter, content, filePath);
+        copyFileTemplated(templateService, filter, content, filePath);
       } else {
-        copyFile(content, filePath);
+        copyFile(templateService, content, filePath);
       }
     }
   }
 
-  private void copyFileTemplated(TemplateFilter templateFilter, InputStream content, String filepath) throws IOException {
+  private void copyFileTemplated(RepositoryService templateService, TemplateFilter templateFilter, InputStream content, String filepath) throws IOException {
     InputStream templatedContent = new ByteArrayInputStream(templateFilter.filter(content, filepath).toByteArray());
-    context.create(filepath).from(templatedContent);
+    copyFile(templateService, templatedContent, filepath);
   }
 
-  private void copyFile(InputStream content, String filepath) throws IOException {
-    context.create(filepath).from(content);
+  private void copyFile(RepositoryService templateService, InputStream content, String filepath) throws IOException {
+    context.createWithDefaultPath(
+        filepath,
+        shouldUseDefaultPath(templateService.getRepository(), context.getRepository())
+      ).from(content);
+  }
+
+  private boolean shouldUseDefaultPath(Repository template, Repository target) {
+    return !(template.getType().equals("svn") && target.getType().equals("svn"));
   }
 
   private TemplateEngine setupTemplateEngine(RepositoryTemplate repositoryTemplate) {
