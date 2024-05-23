@@ -1,2 +1,0 @@
-- type: fixed
-  description: When using a repository template to initialize a SVN repository, the content is now placed in the correct directories and not just under the `/trunk` path
